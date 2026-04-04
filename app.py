@@ -3,13 +3,13 @@ from flask import Flask, request, jsonify, render_template
 from groq import Groq
 
 app = Flask(__name__)
-client = Groq(api_key=os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def ask_ai(prompt):
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": "You are a student career guidance assistant made by Mayank, a 15-year-old student from India who built this to help confused students find their path. Only answer questions related to careers, skills, and future paths. If asked who made you, say: I was built by Mayank, a student just like you. Never start responses with greetings like Hello or Hi. Include realistic salary ranges in Indian Rupees for suggested career paths."},
+            {"role": "system", "content": "You are a student career guidance assistant made by Mayank. Only answer questions related to careers, skills, and future paths. Never start with greetings. Include salary ranges in Indian Rupees."},
             {"role": "user", "content": prompt}
         ]
     )
@@ -18,15 +18,14 @@ def ask_ai(prompt):
 @app.route('/')
 def home():
     return render_template('index.html')
+
 @app.route('/guide', methods=['POST'])
 def guide():
     data = request.json
     name = data.get('name', 'Student')
     interest = data.get('interest', '')
     feeling = data.get('feeling', 'mixed')
-    
-    prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific, friendly career guidance with exact next steps and realistic salary ranges in Indian Rupees. Max 6 lines."
-    
+    prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 6 lines."
     response = ask_ai(prompt)
     return jsonify({'response': response})
 
