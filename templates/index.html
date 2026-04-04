@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mayank's AI Guider</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input, select, button { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+        #response { background: #f4f4f4; padding: 15px; margin-top: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Mayank's AI Career Guider</h1>
+    <p>Get personalised career guidance in seconds.</p>
+    
+    <input type="text" id="name" placeholder="Enter your name">
+    <input type="text" id="interest" placeholder="What are you interested in?">
+    <select id="feeling">
+        <option value="confident">Confident about my future</option>
+        <option value="scared">Scared about my future</option>
+        <option value="mixed">Mixed feelings</option>
+    </select>
+    <button onclick="getGuidance()">Get Guidance</button>
+    
+    <div id="response"></div>
+
+    <script>
+        async function getGuidance() {
+            const name = document.getElementById('name').value;
+            const interest = document.getElementById('interest').value;
+            const feeling = document.getElementById('feeling').value;
+            
+            document.getElementById('response').innerHTML = 'Thinking...';
+            
+            const res = await fetch('/guide', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, interest, feeling})
+            });
+            
+            const data = await res.json();
+            document.getElementById('response').innerHTML = data.response;
+        }
+    </script>
+</body>
+</html>
