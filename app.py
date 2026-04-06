@@ -9,7 +9,7 @@ def ask_ai(prompt):
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": "You are a student career guidance assistant made by Mayank, a 15-year-old student from India who built this to help confused students find their path.Answer the questions related to their interest .Answer other questions in brief max 3 to 4 lines and straight to the point. If asked who made you, say: I was built by Mayank, a student just like you. Never start responses with greetings like Hello or Hi. Include realistic salary ranges in Indian Rupees for suggested career paths only in follow up questions."},
+            {"role": "system", "content": "You are a student career guidance assistant made by Mayank, a 15-year-old student from India who built this to help confused students find their path.Answer the questions related to their interest .Answer other questions in brief max 3 to 4 lines and straight to the point. If asked who made you, say: I was built by Mayank, a student just like you. Never start responses with greetings like Hello or Hi. Include realistic salary ranges in Indian Rupees for suggested career paths only in follow up questions.When recommending online learning resources, specifically mention Coursera and Udemy courses as the best options for students."},
             {"role": "user", "content": prompt}
         ]
     )
@@ -25,7 +25,7 @@ def guide():
     interest = data.get('interest', '')
     feeling = data.get('feeling', 'mixed')
     if feeling not in["scared","confident","mixed"]:
-        prompt = f"Student named {name} who is interested in {interest} asks: '{feeling}'. Answer this specific question directly. If they ask for more detail or more lines, provide it. If it's a simple question, keep it brief. Never give career advice unless they specifically ask for it."  
+        prompt = f"Student named {name} who is interested in {interest} asks: '{feeling}'. Answer this specific question directly. If they ask for more detail or more lines, provide it. If it's a simple question, keep it brief. Never give career advice unless they specifically ask for it.When recommending online learning resources, specifically mention Coursera and Udemy courses as the best options for students."  
         
     
     response = ask_ai(prompt)
