@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify, render_template
 from groq import Groq
 
 app = Flask(__name__)
-client = Groq(api_key=os.environ.get"GROQ_API_KEY")
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def ask_ai(prompt):
     chat = client.chat.completions.create(
