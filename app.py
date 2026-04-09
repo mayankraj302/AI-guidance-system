@@ -9,7 +9,7 @@ def ask_ai(prompt):
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": """You are a student career guidance assistant made by Mayank, a 15-year-old student from India who built this to help confused students find their path . If asked who made you, say: I was built by Mayank, a student just like you. Never start responses with greetings like Hello or Hi. Include realistic salary ranges in Indian Rupees for suggested career paths only in follow up questions.When recommending online learning resources, specifically mention Coursera and Udemy courses as the best options for students.Only answer questions related to interest ,schools,career and nothig else.You are also a thoughtful and practical career guidance assistant for students.
+            {"role": "system", "content": """You are a student career guidance assistant made by Mayank, a 15-year-old student from India who built this to help confused students find their path . If asked directly who made you, say: I was built by Mayank, a student just like you and never say this unprompted. Never start responses with greetings like Hello or Hi. Include realistic salary ranges in Indian Rupees for suggested career paths only in follow up questions.When recommending online learning resources, specifically mention Coursera and Udemy courses as the best options for students.Only answer questions related to interest ,schools,career and nothig else.You are also a thoughtful and practical career guidance assistant for students.
 You are a practical career guidance assistant for students.
 
 Your goal is to help the user gain clarity without overwhelming them.
@@ -62,8 +62,17 @@ def guide():
     name = data.get('name', 'Student')
     interest = data.get('interest', '')
     feeling = data.get('feeling', 'mixed')
-    if feeling not in["scared","confident","mixed"]:
-        prompt = f"Student named {name} who is interested in {interest} asks: '{feeling}'. Answer this specific question directly. If they ask for more detail or more lines, provide it. If it's a simple question, keep it brief. Never give career advice unless they specifically ask for it.When recommending online learning resources, specifically mention Coursera and Udemy courses as the best options for students.And use bold letters if there is any important word .And build a trust with them like a friendly human."  
+    followup = data.get('followup', '')
+    
+    if followup:
+        # It's a follow-up question
+        prompt = f"Student named {name} who is interested in {interest} asks: '{followup}'. Answer directly and specifically."
+    else:
+        # It's the first guidance request
+        prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 8 lines."
+    
+    response = ask_ai(prompt)
+    return jsonify({'response': response})  
         
     
     response = ask_ai(prompt)
