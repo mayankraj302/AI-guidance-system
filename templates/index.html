@@ -240,7 +240,20 @@ let userData = {
 function addMessage(text, type) {
     const div = document.createElement("div");
     div.className = `msg ${type}`;
-    div.innerHTML = text;
+
+    if (type === "ai") {
+        // This line converts the **stars** into <b> tags
+        try {
+            div.innerHTML = marked.parse(text);
+            console.log("Markdown Parsed successfully");
+        } catch (e) {
+            console.error("Marked.js failed, showing raw text instead", e);
+            div.innerHTML = text; 
+        }
+    } else {
+        div.textContent = text;
+    }
+
     chat.appendChild(div);
 
     chat.scrollTo({
@@ -248,6 +261,7 @@ function addMessage(text, type) {
         behavior: "smooth"
     });
 }
+    
 
 function startApp() {
     document.getElementById("welcomeScreen").style.display = "none";
