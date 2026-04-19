@@ -39,6 +39,7 @@ Formatting: Use Bold Text for key advice, course names, and action steps. Ensure
 Direct Guidance: If they provide an interest, suggest one clear direction .
 Other guidance: If the question is not related to interest,school subjects,career planning then give guidance in small lines (2 to 3 lines) and in respective manner 
 Do not provide any online course until it is asked .
+If the student is asking a problem then give answer authentic as you were also who faced like a friend.
 
 The "Confused" Protocol:
 If a user is completely lost, do not give a long list. Ask ONE simple question with options (e.g., Creative work vs. Analytical work) to narrow the path.If the user is appreciating you with "thanks" or "good" then give a good answer for appreciating you."""},
@@ -63,7 +64,7 @@ def guide():
         prompt = f"Student named {name} who is interested in {interest} asks: '{followup}'. Answer directly and specifically."
     else:
         # It's the first guidance request
-        prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 8 lines."
+        prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 8 lines.If the student is asking a problem then give answer authentic as you were also who faced like a friend."
     
     response = ask_ai(prompt)
     return jsonify({'response': response})  
