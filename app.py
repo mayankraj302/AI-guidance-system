@@ -50,7 +50,7 @@ If a user is completely lost, do not give a long list. Ask ONE simple question w
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('frontend/index.html')
 @app.route('/guide', methods=['POST'])
 def guide():
     data = request.json
