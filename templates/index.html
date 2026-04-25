@@ -269,7 +269,7 @@ function startApp() {
     setTimeout(() => {
         addMessage("Hey! Feeling confused about your future? You're not alone. Let's figure this out together.", "ai");
         setTimeout(() => {
-            addMessage("First, what's your name?", "ai");
+            addMessage("But first I want you to tell me your name .", "ai");
             step = 1;
         }, 700);
     }, 300);
@@ -284,18 +284,18 @@ async function send() {
 
     if (step === 1) {
         userData.name = text;
-        addMessage(`Nice to meet you <b>${text}</b>! What are you interested in? (technology, business, creativity, or something else)`, "ai");
+        addMessage(`Nice to meet you <b>${text}</b>! Tell me about your interest means anything that excites you ?`, "ai");
         step = 2;
     }
     else if (step === 2) {
         userData.interest = text;
-        addMessage("How are you feeling about your future? (confident, nervous, just exploring)", "ai");
+        addMessage("How are you feeling about your future I mean what is your condition right now ", "ai");
         step = 3;
     }
     else if (step === 3) {
         userData.feeling = text;
 
-        addMessage("<i>Thinking about your future...</i>", "ai");
+        addMessage("<i>Let's figure it out!...</i>", "ai");
 
         const res = await fetch("/guide", {
             method: "POST",
