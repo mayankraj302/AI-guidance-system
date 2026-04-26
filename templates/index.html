@@ -284,54 +284,77 @@ async function send() {
     const text = input.value.trim();
     if (!text) return;
 
+    // 1. Immediately show user message and clear input
     addMessage(text, "user");
     input.value = "";
 
+    // 2. Add the "Thinking" placeholder immediately
+    addMessage("<i>Thinking...</i>", "ai");
+    const thinkingMessage = chat.lastChild; // Save a reference to it
+
+    let payload = {};
+
+    // 3. Handle early steps WITHOUT calling the API
     if (step === 1) {
         userData.name = text;
-        addMessage(`Nice to meet you <b>${text}</b>! Tell me about your interest means anything that excites you ?`, "ai");
+        thinkingMessage.remove(); // Remove thinking instantly
+        addMessage(`Nice to meet you <b>${text}</b>! What is an interest or hobby that excites you?`, "ai");
         step = 2;
-    }
+        return;
+    } 
     else if (step === 2) {
         userData.interest = text;
-        addMessage("How are you feeling about your future I mean what is your condition right now ", "ai");
+        thinkingMessage.remove(); // Remove thinking instantly
+        addMessage("How are you feeling about your future right now? Be honest.", "ai");
         step = 3;
+        return;
+    } 
+
+    // 4. PREPARE API PAYLOAD (Step 3 and beyond)
+    if (step === 3) {
+        payload = userData;
+        userData.feeling = text; // Capture the final piece of info
+    } else {
+        payload = {
+            ...userData,
+            followup: text,
+            current_day: window.currentDay || 0
+        };
     }
-    else if (step === 3) {
-        userData.feeling = text;
 
-        addMessage("<i>Let's figure it out!...</i>", "ai");
-
+    // 5. CALL THE API (This is where the real "thinking" happens)
+    try {
         const res = await fetch("/guide", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(userData)
+            body: JSON.stringify(payload)
         });
 
         const data = await res.json();
+        
+        // 6. Remove thinking and show real response
+        thinkingMessage.remove();
 
-        chat.lastChild.remove();
+        // Update Progress Bar if data exists
+        if (data.progress !== undefined && data.progress !== null) {
+            const bar = document.getElementById("progress-bar");
+            const barText = document.getElementById("progress-text");
+            bar.style.width = data.progress + "%";
+            barText.textContent = `Mission Progress: ${data.progress}%`;
+            window.currentDay = data.next_day;
+        }
 
-        addMessage(`<b>Alright ${userData.name}, here's your path:</b><br><br>${data.response}`, "ai");
+        if (step === 3) {
+            addMessage(`<b>Alright ${userData.name}, here's your roadmap:</b><br><br>${data.response}`, "ai");
+            step = 4;
+        } else {
+            addMessage(data.response, "ai");
+        }
 
-        step = 4;
-    }
-    else {
-        addMessage("<i>Thinking...</i>", "ai");
-
-        const res = await fetch("/guide", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                ...userData,
-                followup: text
-            })
-        });
-
-        const data = await res.json();
-
-        chat.lastChild.remove();
-        addMessage(data.response, "ai");
+    } catch (error) {
+        thinkingMessage.remove();
+        addMessage("System Error: Connection to the Logic Engine lost. Try again.", "ai");
+        console.error(error);
     }
 }
 
