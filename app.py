@@ -5,6 +5,7 @@ from groq import Groq
 app = Flask(__name__)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
+
 user_progress = {}
 
 def ask_ai(prompt):
@@ -13,29 +14,16 @@ def ask_ai(prompt):
         messages=[
             {"role": "system", "content": """You are a thoughtful career guidance assistant for students, created by Mayank, a student from India. You understand that career choices in India are deeply tied to home pressures, family expectations, and financial stability.
 
-Core Tone & Logic:
+Helpful & Mature. No greetings. Be practical.
 
-Helpful & Mature: Speak like a wise mentor who understands the struggle. Be practical, not just theoretical.
+Use **bold** for key advice.
+Recommend Coursera/Udemy.
 
-No Greetings: Never start with Hello, Hi, or Hey. Begin directly with a helpful insight.
+If unrealistic goal → give respectful reality check.
 
-Identity: If asked who made you, say: I was built by Mayank, a student just like you. Otherwise, stay focused on the user.
+If confused → ask ONE simple question.
 
-Critical Thinking & Integrity: Do not simply agree with the user. If a student suggests a path that is unrealistic (e.g., wanting to be a pro-gamer without a backup plan) or logically flawed, provide a respectful reality check. Use data-driven insights to explain the risks and suggest a hybrid approach.
-
-The "Clarity" Rules:
-
-- Formatting: Use markdown bolding (e.g., **word**) for ALL key advice, course names, and action steps. 
-- Learning: Always recommend Coursera or Udemy specifically.
-- Social Grace: If the user says "thanks" or "good", acknowledge it warmly before moving to the next career insight.
-- Context: Understand that 'convincing parents' is a valid career hurdle.
-
-Contextual Intelligence: Recognize that "convincing parents" is a core part of career planning. Provide logical arguments and scripts the student can use at home.
-
-Direct Guidance: If they provide an interest, suggest one clear direction.
-
-The "Confused" Protocol:
-If a user is completely lost, ask ONE simple question with options to narrow the path."""},
+Keep answers clear, short, and useful."""},
             {"role": "user", "content": prompt}
         ]
     )
@@ -55,7 +43,7 @@ def guide():
     feeling = data.get('feeling', 'mixed')
     followup = data.get('followup', '')
 
-    
+    # Initialize user
     if name not in user_progress:
         user_progress[name] = {"day": 0, "active_plan": False}
 
@@ -66,53 +54,55 @@ def guide():
 
         prompt = f"""
         Create a **7-day action plan** for a student interested in {interest}.
-        Keep it practical, beginner-friendly, and daily-based.
-        Also include what they will achieve after completing it.
+        Keep it simple, beginner-friendly, and daily-based.
         """
 
         response = ask_ai(prompt)
 
         return jsonify({
-            'response': response,
-            'progress': 10
+            "response": response,
+            "progress": 10
         })
 
     
     if user_progress[name]["active_plan"]:
         user_progress[name]["day"] += 1
-        current_day = user_progress[name]["day"]
+        day = user_progress[name]["day"]
 
-        if current_day > 10:
-            current_day = 10
+        if day > 10:
+            day = 10
 
-        progress_percent = int((current_day / 10) * 100)
+        progress = int((day / 10) * 100)
 
         prompt = f"""
-        A student named {name} is on **Day {current_day}** of their journey in {interest}.
+        Student {name} is on **Day {day}** learning {interest}.
 
-        First **appreciate their consistency**.
-        Then give **short motivation**.
-        Then provide **1-2 clear tasks for today**.
+        First appreciate consistency.
+        Then give short motivation.
+        Then give 1-2 tasks.
 
-        Keep it short and powerful.
+        Keep it short.
         """
 
         response = ask_ai(prompt)
 
         return jsonify({
-            'response': response,
-            'progress': progress_percent
+            "response": response,
+            "progress": progress
         })
 
-    # ✅ Normal flow
+    
     if followup:
-        prompt = f"Student named {name} who is interested in {interest} asks: '{followup}'. Answer directly and specifically."
+        prompt = f"{name} asks: {followup}"
     else:
-        prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 6 to 7 lines. Also use bold letters for important words."
+        prompt = f"{name} is interested in {interest} and feels {feeling}. Give short guidance with steps and salary in INR."
 
     response = ask_ai(prompt)
 
-    return jsonify({'response': response})
+    return jsonify({
+        "response": response,
+        "progress": None  
+    })
 
 
 if __name__ == '__main__':
