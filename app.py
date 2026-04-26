@@ -5,21 +5,23 @@ from groq import Groq
 app = Flask(__name__)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
+user_progress = {}
+
 def ask_ai(prompt):
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": """You are a thoughtful career guidance assistant for students, created by Mayank, a student from India. You understand that career choices in India are deeply tied to home pressures, family expectations, and financial stability.Accept both full words and abbreviations. If user types '1', understand it means 'technology'. If they type 'tech', understand it means 'technology'. If they type 'pcm', understand it means 'science - PCM stream'. Map common abbreviations to full options automatically.
+            {"role": "system", "content": """You are a thoughtful career guidance assistant for students, created by Mayank, a student from India. You understand that career choices in India are deeply tied to home pressures, family expectations, and financial stability.
 
 Core Tone & Logic:
 
-Helpful & Mature: Speak like a wise mentor who understands the struggle. Be practical, not just theoretical.Give authentic answere like you are in the place of that student.And remember understand the feeling of students by supporting them.
+Helpful & Mature: Speak like a wise mentor who understands the struggle. Be practical, not just theoretical.
 
 No Greetings: Never start with Hello, Hi, or Hey. Begin directly with a helpful insight.
 
 Identity: If asked who made you, say: I was built by Mayank, a student just like you. Otherwise, stay focused on the user.
 
-Critical Thinking & Integrity: Do not simply agree with the user. If a student suggests a path that is unrealistic (e.g., wanting to be a pro-gamer without a backup plan) or logically flawed, provide a respectful reality check. Use data-driven insights to explain the risks and suggest a hybrid approach 
+Critical Thinking & Integrity: Do not simply agree with the user. If a student suggests a path that is unrealistic (e.g., wanting to be a pro-gamer without a backup plan) or logically flawed, provide a respectful reality check. Use data-driven insights to explain the risks and suggest a hybrid approach.
 
 The "Clarity" Rules:
 
@@ -28,32 +30,23 @@ The "Clarity" Rules:
 - Social Grace: If the user says "thanks" or "good", acknowledge it warmly before moving to the next career insight.
 - Context: Understand that 'convincing parents' is a valid career hurdle.
 
-Dynamic Length: If a user asks a simple question, keep it short (3-5 lines). If they ask a complex question (like comparisons or family issues), provide as much detail as needed to ensure total clarity.
-
 Contextual Intelligence: Recognize that "convincing parents" is a core part of career planning. Provide logical arguments and scripts the student can use at home.
 
-Addressing Alternatives: If asked why you are better than ChatGPT, explain that you are context-aware. You know the Indian education system, and how to handle local social pressures.
-
-Formatting: Use Bold Text for key advice, course names, and action steps. Ensure you use the standard markdown **word** syntax so the UI can render it as bold for the user.
-
-Direct Guidance: If they provide an interest, suggest one clear direction .
-Other guidance: If the question is not related to interest,school subjects,career planning then give guidance in small lines (2 to 3 lines) and in respective manner 
-Do not provide any online course until it is asked .
-If the student is asking a problem then give answer authentic as you were also who faced like a friend.
-If the problem is related to any book and you have to answer the question asked by user it can be of maths or english or anything else because you also know about the tough questions and all that.Solve the question or answer it as per given data if the data is incomplete or wrong then tell the user to mention full information .
-If the user is asking you to compare two or more things together then you have to compare them to be brutally honest .
-If the question is too long then handle it wisely .
+Direct Guidance: If they provide an interest, suggest one clear direction.
 
 The "Confused" Protocol:
-If a user is completely lost, do not give a long list. Ask ONE simple question with options (e.g., Creative work vs. Analytical work) to narrow the path.If the user is appreciating you with "thanks" or "good" then give a good answer for appreciating you."""},
+If a user is completely lost, ask ONE simple question with options to narrow the path."""},
             {"role": "user", "content": prompt}
         ]
     )
     return chat.choices[0].message.content
 
+
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('frontend/index.html')
+
+
 @app.route('/guide', methods=['POST'])
 def guide():
     data = request.json
@@ -61,20 +54,66 @@ def guide():
     interest = data.get('interest', '')
     feeling = data.get('feeling', 'mixed')
     followup = data.get('followup', '')
+
     
+    if name not in user_progress:
+        user_progress[name] = {"day": 0, "active_plan": False}
+
+    
+    if followup and ("7 day" in followup.lower() or "7-day" in followup.lower()):
+        user_progress[name]["day"] = 1
+        user_progress[name]["active_plan"] = True
+
+        prompt = f"""
+        Create a **7-day action plan** for a student interested in {interest}.
+        Keep it practical, beginner-friendly, and daily-based.
+        Also include what they will achieve after completing it.
+        """
+
+        response = ask_ai(prompt)
+
+        return jsonify({
+            'response': response,
+            'progress': 10
+        })
+
+    
+    if user_progress[name]["active_plan"]:
+        user_progress[name]["day"] += 1
+        current_day = user_progress[name]["day"]
+
+        if current_day > 10:
+            current_day = 10
+
+        progress_percent = int((current_day / 10) * 100)
+
+        prompt = f"""
+        A student named {name} is on **Day {current_day}** of their journey in {interest}.
+
+        First **appreciate their consistency**.
+        Then give **short motivation**.
+        Then provide **1-2 clear tasks for today**.
+
+        Keep it short and powerful.
+        """
+
+        response = ask_ai(prompt)
+
+        return jsonify({
+            'response': response,
+            'progress': progress_percent
+        })
+
+    # ✅ Normal flow
     if followup:
-        # It's a follow-up question
         prompt = f"Student named {name} who is interested in {interest} asks: '{followup}'. Answer directly and specifically."
     else:
-        # It's the first guidance request
-        prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 8 lines.If the student is asking a problem then give answer authentically like you once suffered from that then help like a friend."
-    
+        prompt = f"A student named {name} is interested in {interest} and feeling {feeling} about their future. Give specific friendly career guidance with exact next steps and salary ranges in Indian Rupees. Max 6 to 7 lines. Also use bold letters for important words."
+
     response = ask_ai(prompt)
-    return jsonify({'response': response})  
-        
-    
-    response = ask_ai(prompt)
+
     return jsonify({'response': response})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
