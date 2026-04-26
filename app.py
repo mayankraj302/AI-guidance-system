@@ -44,7 +44,7 @@ If a user is completely lost, ask ONE simple question with options to narrow the
 
 @app.route('/')
 def home():
-    return render_template('frontend/index.html')
+    return render_template('index.html')
 
 
 @app.route('/guide', methods=['POST'])
