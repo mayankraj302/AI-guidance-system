@@ -95,7 +95,7 @@ def guide():
         Student {name} is on **Day {day}** learning {interest}.
 
         First appreciate consistency.
-        Then give short motivation.
+        Then give short reply but be brutally honest.
         Then give 1-2 tasks.
 
         Keep it short.
@@ -112,7 +112,7 @@ def guide():
     if followup:
         prompt = f"{name} asks: {followup}"
     else:
-        prompt = f"{name} is interested in {interest} and feels {feeling}. Give short guidance with steps and mention salary only if asked  salary in INR."
+        prompt = f"{name} is interested in {interest} and feels {feeling}. Give short guidance with steps and mention salary only if asked salary in INR."
 
     response = ask_ai(prompt)
 
