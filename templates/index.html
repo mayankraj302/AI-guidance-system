@@ -254,10 +254,18 @@ window.onload = () => {
     if (saved) {
         userData = JSON.parse(saved);
         window.currentDay = userData.currentDay || 0;
-        step = 4; // Skip the intro
-        document.getElementById("welcomeScreen").style.display = "none";
+        const welcomeTitle = document.querySelector(".welcome-box h1");
+        const welcomePara = document.querySelector(".welcome-box p");
+        const welcomeBtn = document.querySelector(".welcome-box button");
+
+        if (welcomeTitle) welcomeTitle.innerHTML = `🎯 Welcome Back, ${userData.name}!`;
+        if (welcomePara) welcomePara.textContent = `You're on Day ${window.currentDay} of your ${userData.interest} mission. Let's keep going.`;
+        if (welcomeBtn) welcomeBtn.textContent = "Resume Mission";
+        step = 4; 
+        updateProgressBar(userData.progress || 0);
+        document.getElementById("progress-container").style.display = "block"
         
-        // Show the progress bar immediately
+       
         updateProgressBar(userData.progress);
         document.getElementById("progress-container").style.display = "block";
         
