@@ -221,7 +221,7 @@ body {
         <span id="info-icon" style="cursor: pointer; font-size: 14px; color: #6D28D9;">ℹ️</span>
     </div>
     <div style="width: 100%; background: #e5e7eb; border-radius: 10px; height: 10px;">
-        <div id="progress-bar" style="width: 0%; height: 10px; background: linear-gradient(135deg, #4F46E5, #7C3AED); border-radius: 10px; transition: 1.5s ease-in-out;"></div>
+        <div id="progress-bar" style="width: 0%; height: 10px; background: linear-gradient(135deg, #4F46E5, #7C3AED); border-radius: 10px; transition: width 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) ease-in-out;"></div>
     </div>
 </div>
 
@@ -238,46 +238,65 @@ body {
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 
+// GLOBAL STATE - Declared once
 let step = 0;
 let userData = {
     name: "",
     interest: "",
-    feeling: ""
+    feeling: "",
+    currentDay: 0,
+    progress: 0
 };
+
+// CHECK FOR RETURNING USER ON LOAD
+window.onload = () => {
+    const saved = localStorage.getItem("ai_career_data");
+    if (saved) {
+        userData = JSON.parse(saved);
+        window.currentDay = userData.currentDay || 0;
+        step = 4; // Skip the intro
+        document.getElementById("welcomeScreen").style.display = "none";
+        
+        // Show the progress bar immediately
+        updateProgressBar(userData.progress);
+        document.getElementById("progress-container").style.display = "block";
+        
+        addMessage(`Welcome back, **${userData.name}**! Logic core synchronized. Ready to continue your **${userData.interest}** roadmap?`, "ai");
+    }
+};
+
+// Helper to update the UI
+function updateProgressBar(percent) {
+    const bar = document.getElementById("progress-bar");
+    const barText = document.getElementById("progress-text");
+    if(bar && barText) {
+        bar.style.width = percent + "%";
+        barText.textContent = `Mission Progress: ${percent}%`;
+    }
+}
 
 function addMessage(text, type) {
     const div = document.createElement("div");
     div.className = `msg ${type}`;
-
     if (type === "ai") {
-        // This line converts the **stars** into <b> tags
         try {
             div.innerHTML = marked.parse(text);
-            console.log("Markdown Parsed successfully");
         } catch (e) {
-            console.error("Marked.js failed, showing raw text instead", e);
             div.innerHTML = text; 
         }
     } else {
         div.textContent = text;
     }
-
     chat.appendChild(div);
-
-    chat.scrollTo({
-        top: chat.scrollHeight,
-        behavior: "smooth"
-    });
+    chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
 }
-    
 
 function startApp() {
     document.getElementById("welcomeScreen").style.display = "none";
-
     setTimeout(() => {
-        addMessage("Hey! Feeling confused about your future? You're not alone. Let's figure this out together.", "ai");
+        addMessage("Hey! Feeling confused about your future? Let's figure this out together.", "ai");
         setTimeout(() => {
-            addMessage("But first I want you to tell me your name .", "ai");
+            addMessage("But first, tell me your name.", "ai");
             step = 1;
         }, 700);
     }, 300);
@@ -287,45 +306,35 @@ async function send() {
     const text = input.value.trim();
     if (!text) return;
 
-    // 1. Immediately show user message and clear input
     addMessage(text, "user");
     input.value = "";
-
-    // 2. Add the "Thinking" placeholder immediately
-    addMessage("<i>Thinking...</i>", "ai");
-    const thinkingMessage = chat.lastChild; // Save a reference to it
+    addMessage("<i>Analyzing...</i>", "ai");
+    const thinkingMessage = chat.lastChild;
 
     let payload = {};
 
-    // 3. Handle early steps WITHOUT calling the API
     if (step === 1) {
         userData.name = text;
-        thinkingMessage.remove(); // Remove thinking instantly
-        addMessage(`Nice to meet you <b>${text}</b>! What is an interest or hobby that excites you?`, "ai");
+        thinkingMessage.remove();
+        addMessage(`System localized. Nice to meet you **${text}**. What is an interest or career path you want to dominate?`, "ai");
         step = 2;
         return;
     } 
     else if (step === 2) {
         userData.interest = text;
-        thinkingMessage.remove(); // Remove thinking instantly
-        addMessage("How are you feeling about your future right now? Be honest.", "ai");
+        thinkingMessage.remove();
+        addMessage("Understood. How are you feeling about this path? (e.g., confused, pressured, excited)", "ai");
         step = 3;
         return;
     } 
 
-    // 4. PREPARE API PAYLOAD (Step 3 and beyond)
     if (step === 3) {
+        userData.feeling = text;
         payload = userData;
-        userData.feeling = text; // Capture the final piece of info
     } else {
-        payload = {
-            ...userData,
-            followup: text,
-            current_day: window.currentDay || 0
-        };
+        payload = { ...userData, followup: text, current_day: window.currentDay || 0 };
     }
 
-    // 5. CALL THE API (This is where the real "thinking" happens)
     try {
         const res = await fetch("/guide", {
             method: "POST",
@@ -334,36 +343,34 @@ async function send() {
         });
 
         const data = await res.json();
-        
-        // 6. Remove thinking and show real response
         thinkingMessage.remove();
 
-        // Update Progress Bar if data exists
-        if (data.progress !== undefined && data.progress !== null) {
-            const bar = document.getElementById("progress-bar");
-            const barText = document.getElementById("progress-text");
-            bar.style.width = data.progress + "%";
-            barText.textContent = `Mission Progress: ${data.progress}%`;
+        if (data.progress !== undefined) {
+            updateProgressBar(data.progress);
+            userData.progress = data.progress;
             window.currentDay = data.next_day;
+            userData.currentDay = data.next_day;
+            localStorage.setItem("ai_career_data", JSON.stringify(userData));
+            document.getElementById("progress-container").style.display = "block";
         }
 
-        if (step === 3) {
-            addMessage(`<b>Alright ${userData.name}, here's your roadmap:</b><br><br>${data.response}`, "ai");
-            step = 4;
-        } else {
-            addMessage(data.response, "ai");
-        }
+        addMessage(data.response, "ai");
+        if (step === 3) step = 4;
 
-    } catch (error) {
-        thinkingMessage.remove();
-        addMessage("System Error: Connection to the Logic Engine lost. Try again.", "ai");
-        console.error(error);
+    } catch (e) {
+        if(thinkingMessage) thinkingMessage.remove();
+        addMessage("Connection error. The logic engine is offline.", "ai");
     }
 }
 
 input.addEventListener("keypress", function(e) {
     if (e.key === "Enter") send();
 });
+
+// Info Icon logic
+document.getElementById("info-icon").onclick = () => {
+    alert("Mission Progress Tracker:\n- Complete daily tasks to level up.\n- The AI verifies your work before moving the bar.\n- Progress is saved automatically!");
+};
 </script>
 
 </body>
