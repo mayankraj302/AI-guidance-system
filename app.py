@@ -33,7 +33,7 @@ PROGRESSION RULES:
 RESPONSE FORMAT:
 -  4-5 line assessment(Truth)
 -  One specific direction.
--  One action/non-action forcing question."""
+-  One action forcing question if necessary not usually."""
 
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
