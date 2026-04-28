@@ -189,7 +189,7 @@
     <div class="welcome-box">
         <h1>🎯 The 1% Filter</h1>
         <p id="welcomeSubtitle">Stop following the crowd. Let's build a strategic roadmap for your career domination.</p>
-        <button id="mainBtn" onclick="startApp()">Enter Mission</button>
+        <button id="mainBtn" onclick="console.log('Button clicked!'); startApp()">Get Started</button>
         <div id="newMissionContainer" style="display:none; margin-top: 25px;">
             <span id="newMissionLink" style="color: white; font-size: 13px; cursor: pointer; text-decoration: underline; opacity: 0.7;">Start New Mission (Wipe Memory)</span>
         </div>
@@ -256,20 +256,30 @@
     }
 
     function startApp() {
-        document.getElementById("welcomeScreen").style.opacity = "0";
-        setTimeout(() => {
-            document.getElementById("welcomeScreen").remove();
-        }, 500);
-
-        if (step === 4) {
-            addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the latest update on your ${userData.interest} progress?`, "ai");
-        } else {
-            setTimeout(() => {
-                addMessage("Hey. I'm here to build your roadmap to the 1%. First, what's your name?", "ai");
-                step = 1;
-            }, 600);
-        }
+    console.log("startApp function is running...");
+    
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    if (welcomeScreen) {
+        welcomeScreen.style.display = "none"; // Hide immediately
+        welcomeScreen.remove();              // Then delete
+    } else {
+        console.error("Could not find welcomeScreen element!");
     }
+
+    // Force the chat container to be visible just in case
+    const chatContainer = document.querySelector(".chat-container");
+    if (chatContainer) {
+        chatContainer.style.display = "flex";
+        chatContainer.style.visibility = "visible";
+    }
+
+    if (step === 4) {
+        addMessage(`**System Rebooted.** Resuming mission...`, "ai");
+    } else {
+        addMessage("Hey. Let's build your roadmap. What's your name?", "ai");
+        step = 1;
+    }
+}
 
     async function send() {
         const text = input.value.trim();
