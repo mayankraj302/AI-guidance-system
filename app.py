@@ -5,143 +5,83 @@ from groq import Groq
 app = Flask(__name__)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-
+# Store progress as percentages now
 user_progress = {}
 
-def ask_ai(prompt):
+def ask_ai(prompt, current_progress):
+    # We pass the current_progress INTO the system prompt so the AI knows where the user is
+    system_instructions = f"""Act as a high-stakes Strategic Mentor and Career Architect, built by Mayank.
+
+IDENTITY:
+Blunt, visionary, First Principles thinker. You create Battle Plans, not advice.
+Tone: Sharp logical intensity.
+
+CURRENT USER PROGRESS: {current_progress}%
+
+PROTOCOL:
+1. Phase 1 (Diagnostic): Ask 3 sharp questions to test Proof of Work and Risk.
+2. Phase 2 (Classification): Follower vs Breaker.
+3. Phase 3 (Execution): The $10k Gamble logic.
+
+PROGRESSION RULES:
+- You are the gatekeeper. 
+- If the user proves they completed a task or showed extreme discipline, you MUST end your response with the exact tag: [PROGRESS_UP]
+- If they are just saying "thanks," "hello," or being lazy, DO NOT use the tag.
+- NEVER mention "Day 1" or "Day 2". Only refer to their progress percentage.
+
+RESPONSE FORMAT:
+- THE TRUTH: 1–2 line assessment.
+- THE PIVOT: One specific direction.
+- THE HOOK: One action-forcing question."""
+
     chat = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
-            {"role": "system", "content": """Act as a high-stakes Strategic Mentor and Career Architect, built by Mayank, a student from India.
-
-IDENTITY:
-Blunt, visionary, and driven by First Principles thinking.
-You do not give normal career advice — you create Battle Plans.
-Tone: thoughtful empathy + sharp logical intensity.
-
-WORKFLOW (3 PHASES):
-Do not move to the next phase until the previous one is complete.
-
-Phase 1: Diagnostic
-Ask up to 3 sharp questions to test:
-- Proof of Work
-- Risk Appetite
-- Whether the user thinks inside or outside the system
-Do NOT give advice in this phase.
-
-Phase 2: Classification
-Based on answers, internally classify the user as:
-- System Follower
-- System Breaker
-
-Phase 3: Execution
-- If Follower: guide through academic / system-based growth
-- If Breaker: give unconventional high-upside paths (“$10k Gamble” logic)
-
-WORTHINESS SIGNALS:
-- Tourist: “I watched a long course.”
-  Verdict: Stay in school path
-- Builder: “I stayed up till 3 AM fixing my project bug.”
-  Verdict: Give builder-level unconventional path
-
-RULES:
-1. No jargon words like “essential,” “crucial,” or “leverage.”
-2. No fluff openings. Start directly with logic.
-3. Be specific: suggest exact skills, certifications, projects, or trades.
-4. Be brutally honest if the plan has a logical flaw.
-5. Never assume missing information.
-6. Always explain WHY, using real-world context, especially Indian education and family pressure.
-
-RESPONSE FORMAT:
-- THE TRUTH: 1–2 line honest assessment, but first acknowledge the user
-- THE PIVOT: one specific direction they may not have considered
-- THE HOOK: end with a sharp action-forcing question
-
-EXTRA RULES:
-- Do not give a day plan unless asked
-- Even for non-career questions, guide with the same strategic thinking
-- Handle family pressure wisely and realistically
-- If user is a system breaker, guide them toward top 1% outcomes"""},
+            {"role": "system", "content": system_instructions},
             {"role": "user", "content": prompt}
         ]
     )
     return chat.choices[0].message.content
 
-
 @app.route('/')
 def home():
     return render_template('index.html')
-
 
 @app.route('/guide', methods=['POST'])
 def guide():
     data = request.json
     name = data.get('name', 'Student')
     interest = data.get('interest', '')
-    feeling = data.get('feeling', 'mixed')
     followup = data.get('followup', '')
 
-    # Initialize user
+    # Initialize user progress at 0%
     if name not in user_progress:
-        user_progress[name] = {"day": 0, "active_plan": False}
+        user_progress[name] = 0
 
-    
-    if followup and ("7 day" in followup.lower() or "7-day" in followup.lower()):
-        user_progress[name]["day"] = 1
-        user_progress[name]["active_plan"] = True
+    current_pct = user_progress[name]
 
-        prompt = f"""
-        Create a **7-day action plan** for a student interested in {interest}.
-        Keep it simple, beginner-friendly, and daily-based.
-        """
-
-        response = ask_ai(prompt)
-
-        return jsonify({
-            "response": response,
-            "progress": 10
-        })
-
-    
-    if user_progress[name]["active_plan"]:
-        user_progress[name]["day"] += 1
-        day = user_progress[name]["day"]
-
-        if day > 10:
-            day = 10
-
-        progress = int((day / 10) * 100)
-
-        prompt = f"""
-        Student {name} is on **Day {day}** learning {interest}.
-
-        First appreciate consistency.
-        Then give short reply but be brutally honest.
-        Then give 1-2 tasks.
-
-        Keep it short.
-        """
-
-        response = ask_ai(prompt)
-
-        return jsonify({
-            "response": response,
-            "progress": progress
-        })
-
-    
+    # Build the user prompt
     if followup:
-        prompt = f"{name} asks: {followup}"
+        user_prompt = f"User {name} says: {followup}"
     else:
-        prompt = f"{name} is interested in {interest} and feels {feeling}. Give short guidance with steps and mention salary only if asked salary in INR."
+        user_prompt = f"User {name} is interested in {interest}. Start Phase 1 Diagnostic."
 
-    response = ask_ai(prompt)
+    # Get AI response
+    raw_response = ask_ai(user_prompt, current_pct)
+
+    # CHECK FOR PROGRESS TAG
+    if "[PROGRESS_UP]" in raw_response:
+        # Increment by 4% per successful interaction
+        user_progress[name] = min(current_pct + 4, 100)
+        # Clean the tag out so the user doesn't see it
+        clean_response = raw_response.replace("[PROGRESS_UP]", "").strip()
+    else:
+        clean_response = raw_response
 
     return jsonify({
-        "response": response,
-        "progress": None  
+        "response": clean_response,
+        "progress": user_progress[name]
     })
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
