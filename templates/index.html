@@ -78,6 +78,10 @@ body {
     flex-direction: column;
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
     overflow: hidden;
+    
+    position: relative; 
+    z-index: 5;       
+    margin: auto;     
 }
 
 /* HEADER */
@@ -319,13 +323,18 @@ function addMessage(text, type) {
 }
 
 function startApp() {
-    document.getElementById("welcomeScreen").style.display = "none";
+    const welcomeScreen = document.getElementById("welcomeScreen");
     
-    // If step is already 4, it means we are resuming. Don't ask for name.
+    // 1. Hide the welcome screen immediately
+    welcomeScreen.style.display = "none";
+    
+    // 2. Clear the chat and set the state
     if (step === 4) {
+        // Clear chat window in case of old "analyzing" messages
+        chat.innerHTML = ""; 
         addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the update on your ${userData.interest} progress?`, "ai");
     } else {
-        // New user flow
+        chat.innerHTML = "";
         setTimeout(() => {
             addMessage("Hey! Feeling confused about your future? Let's figure this out together.", "ai");
             setTimeout(() => {
