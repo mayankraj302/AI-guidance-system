@@ -76,7 +76,7 @@ def guide():
         # Clean the tag out so the user doesn't see it
         clean_response = raw_response.replace("[PROGRESS_UP]", "").strip()
     else:
-        clean_response = raw_response
+        user_progress[name] = current_pct
 
     return jsonify({
         "response": clean_response,
