@@ -9,7 +9,7 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 user_progress = {}
 
 def ask_ai(prompt, current_progress):
-    # We pass the current_progress INTO the system prompt so the AI knows where the user is
+    
     system_instructions = f"""Act as a high-stakes Strategic Mentor and Career Architect, built by Mayank.
 
 IDENTITY:
