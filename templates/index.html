@@ -323,20 +323,26 @@ function addMessage(text, type) {
 }
 
 function startApp() {
-    document.getElementById("welcomeScreen");
+    const welcomeScreen = document.getElementById("welcomeScreen");
     
-    // 1. Hide the welcome screen immediately
-    welcomeScreen.style.display = "none";
+    if (welcomeScreen) {
+        // This literally deletes the purple screen from the HTML
+        welcomeScreen.remove(); 
+    }
     
-    // 2. Clear the chat and set the state
+    // Check if chat container exists
+    const container = document.querySelector(".chat-container");
+    if (container) {
+        container.style.display = "flex";
+    }
+
     if (step === 4) {
-        // Clear chat window in case of old "analyzing" messages
         chat.innerHTML = ""; 
-        addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the update on your ${userData.interest} progress?`, "ai");
+        addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the update?`, "ai");
     } else {
         chat.innerHTML = "";
         setTimeout(() => {
-            addMessage("Hey! Feeling confused about your future? Let's figure this out together.", "ai");
+            addMessage("Hey! Let's figure this out together.", "ai");
             setTimeout(() => {
                 addMessage("But first, tell me your name.", "ai");
                 step = 1;
@@ -344,7 +350,6 @@ function startApp() {
         }, 300);
     }
 }
-
 async function send() {
     const text = input.value.trim();
     if (!text) return;
