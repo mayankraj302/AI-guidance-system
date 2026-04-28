@@ -1,432 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mayank's AI Career Guider</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayank's AI Career Guider</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #6366F1, #7C3AED);
+            --chat-bg: #F9FAFB;
+            --primary: #6D28D9;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-<style>
-:root {
-    --bg-gradient: linear-gradient(135deg, #6366F1, #7C3AED);
-    --chat-bg: #F9FAFB;
-    --primary: #6D28D9;
-}
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
 
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg-gradient);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        .welcome-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
 
-/* WELCOME SCREEN */
-.welcome-screen {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #4F46E5, #7C3AED);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    transition: opacity 0.4s ease;
-}
+        .welcome-box {
+            text-align: center;
+            color: white;
+            max-width: 400px;
+            padding: 20px;
+        }
 
-.welcome-box {
-    text-align: center;
-    color: white;
-    max-width: 400px;
-}
+        .chat-container {
+            width: 90%;
+            max-width: 900px;
+            height: 85vh;
+            background: white;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
 
-.welcome-box h1 {
-    margin-bottom: 10px;
-}
+        .header {
+            padding: 18px;
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            background: var(--primary);
+        }
 
-.welcome-box p {
-    opacity: 0.9;
-    margin-bottom: 20px;
-}
+        .chat {
+            flex: 1;
+            background: var(--chat-bg);
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
 
-.welcome-box button {
-    background: white;
-    color: #6D28D9;
-    border: none;
-    padding: 12px 22px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
+        .msg {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 15px;
+            line-height: 1.5;
+            animation: fadeIn 0.25s ease;
+        }
 
-.welcome-box button:hover {
-    transform: scale(1.05);
-}
+        .ai { background: white; align-self: flex-start; border: 1px solid #ddd; }
+        .user { background: var(--primary); color: white; align-self: flex-end; }
 
-/* MAIN CONTAINER */
-.chat-container {
-    width: 90%;
-    max-width: 900px;
-    height: 80vh;
-    background: white;
-    border-radius: 18px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    overflow: hidden;
-    
-    position: relative; 
-    z-index: 5;       
-    margin: auto;     
-}
+        .input-box {
+            display: flex;
+            padding: 16px;
+            gap: 10px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
 
-/* HEADER */
-.header {
-    padding: 18px;
-    text-align: center;
-    font-weight: 600;
-    color: white;
-    background: linear-gradient(135deg, #4F46E5, #7C3AED);
-}
+        .input-box input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #ddd; }
+        .input-box button { background: var(--primary); color: white; border: none; padding: 0 20px; border-radius: 8px; cursor: pointer; }
 
-.chat {
-    flex: 1;
-    background: var(--chat-bg);
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-/* MESSAGE */
-.msg {
-    max-width: 75%;
-    padding: 14px 18px;
-    border-radius: 14px;
-    font-size: 15px;
-    line-height: 1.6;
-    animation: fadeIn 0.25s ease;
-}
-.msg p {
-    margin: 0 0 10px 0; 
-    display: block;     
-}
-
-
-.msg strong, .msg b {
-    font-weight: 800; 
-    color: #4F46E5; 
-    background: rgba(79, 70, 229, 0.1); 
-    padding: 0 2px;
-    border-radius: 4px;
-}
-
-/* AI */
-.ai {
-    background: #ffffff;
-    align-self: flex-start;
-    border-bottom-left-radius: 5px;
-    border: 1px solid #eee;
-    position: relative;
-    padding-left: 38px;
-}
-
-.ai::before {
-    content: "✨";
-    position: absolute;
-    left: 10px;
-    top: 10px;
-}
-
-.ai b {
-    color: #4F46E5;
-}
-
-/* USER */
-.user {
-    background: var(--primary);
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 5px;
-}
-
-/* INPUT */
-.input-box {
-    display: flex;
-    padding: 16px;
-    gap: 10px;
-    background: white;
-    border-top: 1px solid #eee;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-}
-
-.input-box input {
-    flex: 1;
-    padding: 14px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-}
-
-.input-box input:focus {
-    outline: none;
-    border-color: #6D28D9;
-}
-
-.input-box button {
-    background: linear-gradient(135deg, #4F46E5, #7C3AED);
-    color: white;
-    border: none;
-    padding: 0 22px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.input-box button:hover {
-    transform: scale(1.05);
-}
-
-/* ANIMATION */
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(8px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-
-/* MOBILE */
-@media (max-width: 700px) {
-    .chat-container {
-        width: 100%;
-        height: 100vh;
-        border-radius: 0;
-    }
-}
-</style>
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(5px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    </style>
 </head>
-
 <body>
 
-<!-- WELCOME -->
 <div class="welcome-screen" id="welcomeScreen">
     <div class="welcome-box">
         <h1>🎯 Mayank's AI Career Guider</h1>
         <p id="welcomeSubtitle">Confused about your future? Let's figure it out together.</p>
-        
         <button id="mainBtn" onclick="startApp()">Get Started</button>
-        
         <div id="newMissionContainer" style="display:none; margin-top: 20px;">
-        <span id="newMissionLink" style="color: white; font-size: 13px; cursor: pointer; text-decoration: underline; opacity: 0.8;">
-            Start a new mission
-        </span>
+            <span id="newMissionLink" style="color: white; font-size: 13px; cursor: pointer; text-decoration: underline; opacity: 0.8;">Start a new mission</span>
+        </div>
     </div>
 </div>
 
-<!-- APP -->
 <div class="chat-container">
-
     <div class="header">🚀 Mayank's AI Career Guider</div>
-    <div id="progress-container" style="padding: 10px 20px; background: #f3f4f6; position: relative;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-        <p id="progress-text" style="margin: 0; font-size: 12px; color: #555; font-weight: bold;">Mission Progress: 0%</p>
-        <span id="info-icon" style="cursor: pointer; font-size: 14px; color: #6D28D9;">ℹ️</span>
+    <div id="progress-container" style="padding: 10px 20px; background: #f3f4f6;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <p id="progress-text" style="margin: 0; font-size: 12px; color: #555; font-weight: bold;">Mission Progress: 0%</p>
+            <span id="info-icon" style="cursor: pointer;">ℹ️</span>
+        </div>
+        <div style="width: 100%; background: #e5e7eb; border-radius: 10px; height: 10px;">
+            <div id="progress-bar" style="width: 0%; height: 10px; background: #4F46E5; border-radius: 10px; transition: width 1s;"></div>
+        </div>
     </div>
-    <div style="width: 100%; background: #e5e7eb; border-radius: 10px; height: 10px;">
-        <div id="progress-bar" style="width: 0%; height: 10px; background: linear-gradient(135deg, #4F46E5, #7C3AED); border-radius: 10px; transition: width 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) ease-in-out;"></div>
-    </div>
-</div>
-
     <div class="chat" id="chat"></div>
-
     <div class="input-box">
         <input type="text" id="input" placeholder="Ask anything about your choice..." />
         <button onclick="send()">Send</button>
     </div>
-
 </div>
 
 <script>
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("input");
+    let step = 0;
+    let userData = { name: "", interest: "", feeling: "", progress: 0 };
 
-// GLOBAL STATE - Declared once
-let step = 0;
-let userData = {
-    name: "",
-    interest: "",
-    feeling: "",
-    currentDay: 0,
-    progress: 0
-};
-
-// CHECK FOR RETURNING USER ON LOAD
-window.onload = () => {
-    const saved = localStorage.getItem("ai_career_data");
-    const newMissionContainer = document.getElementById("newMissionContainer");
-    const welcomeBtn = document.getElementById("mainBtn");
-    const newMissionLink = document.getElementById("newMissionLink");
-
-    if (saved) {
-        userData = JSON.parse(saved);
-        
-        // Update UI for returning user
-        document.querySelector(".welcome-box h1").innerHTML = `🎯 Welcome Back, ${userData.name}!`;
-        document.getElementById("welcomeSubtitle").textContent = `Currently at ${userData.progress}% on your ${userData.interest} path.`;
-        welcomeBtn.textContent = "Resume Mission";
-
-        // Show the reset option
-        newMissionContainer.style.display = "block";
-        
-        // Direct assignment to ensure it works
-        newMissionLink.onclick = function() {
-            if(confirm("This will clear your current progress and history. Are you sure?")) {
-                localStorage.clear(); // Clear everything
-                location.reload();    // Hard refresh to reset the state
-            }
-        };
-
-        // Jump to Step 4
-        step = 4; 
-        updateProgressBar(userData.progress || 0);
-        document.getElementById("progress-container").style.display = "block";
-    }
-};
-
-// Helper to update the UI
-function updateProgressBar(percent) {
-    const bar = document.getElementById("progress-bar");
-    const barText = document.getElementById("progress-text");
-    if(bar && barText) {
-        bar.style.width = percent + "%";
-        barText.textContent = `Mission Progress: ${percent}%`;
-    }
-}
-
-function addMessage(text, type) {
-    const div = document.createElement("div");
-    div.className = `msg ${type}`;
-    if (type === "ai") {
-        try {
-            div.innerHTML = marked.parse(text);
-        } catch (e) {
-            div.innerHTML = text; 
+    window.onload = () => {
+        const saved = localStorage.getItem("ai_career_data");
+        if (saved) {
+            userData = JSON.parse(saved);
+            document.querySelector(".welcome-box h1").innerHTML = `🎯 Welcome Back, ${userData.name}!`;
+            document.getElementById("welcomeSubtitle").textContent = `Currently at ${userData.progress}% on your ${userData.interest} path.`;
+            document.getElementById("mainBtn").textContent = "Resume Mission";
+            document.getElementById("newMissionContainer").style.display = "block";
+            document.getElementById("newMissionLink").onclick = () => {
+                if(confirm("Reset progress?")) { localStorage.clear(); location.reload(); }
+            };
+            step = 4;
+            updateProgressBar(userData.progress);
         }
-    } else {
-        div.textContent = text;
-    }
-    chat.appendChild(div);
-    chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
-}
-
-function startApp() {
-    const welcomeScreen = document.getElementById("welcomeScreen");
-    
-    if (welcomeScreen) {
-        // This literally deletes the purple screen from the HTML
-        welcomeScreen.remove(); 
-    }
-    
-    // Check if chat container exists
-    const container = document.querySelector(".chat-container");
-    if (container) {
-        container.style.display = "flex";
-    }
-
-    if (step === 4) {
-        chat.innerHTML = ""; 
-        addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the update?`, "ai");
-    } else {
-        chat.innerHTML = "";
-        setTimeout(() => {
-            addMessage("Hey! Let's figure this out together.", "ai");
-            setTimeout(() => {
-                addMessage("But first, tell me your name.", "ai");
-                step = 1;
-            }, 700);
-        }, 300);
-    }
-}
-async function send() {
-    const text = input.value.trim();
-    if (!text) return;
-
-    addMessage(text, "user");
-    input.value = "";
-    
-    // Add thinking indicator
-    const thinkingDiv = document.createElement("div");
-    thinkingDiv.className = "msg ai";
-    thinkingDiv.innerHTML = "<i>Analyzing logic...</i>";
-    chat.appendChild(thinkingDiv);
-    chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
-
-    let payload = {};
-
-    // Steps 1 & 2 stay the same (Name and Interest)
-    if (step === 1) {
-        userData.name = text;
-        thinkingDiv.remove();
-        addMessage(`System localized. Nice to meet you **${text}**. What is an interest or career path you want to dominate?`, "ai");
-        step = 2;
-        return;
-    } 
-    else if (step === 2) {
-        userData.interest = text;
-        thinkingDiv.remove();
-        addMessage("Understood. How are you feeling about this path? (e.g., confused, pressured, excited)", "ai");
-        step = 3;
-        return;
-    } 
-
-    // Step 3+ communicates with Flask
-    payload = { 
-        name: userData.name, 
-        interest: userData.interest, 
-        followup: text 
     };
 
-    try {
-        const res = await fetch("/guide", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(payload)
-        });
+    function updateProgressBar(percent) {
+        document.getElementById("progress-bar").style.width = percent + "%";
+        document.getElementById("progress-text").textContent = `Mission Progress: ${percent}%`;
+    }
 
-        const data = await res.json();
-        thinkingDiv.remove();
+    function addMessage(text, type) {
+        const div = document.createElement("div");
+        div.className = `msg ${type}`;
+        div.innerHTML = type === "ai" ? marked.parse(text) : text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+    }
 
-        // UPDATE THE PROGRESS BAR
-        if (data.progress !== undefined) {
+    function startApp() {
+        document.getElementById("welcomeScreen").remove();
+        if (step === 4) {
+            addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the update?`, "ai");
+        } else {
+            setTimeout(() => {
+                addMessage("Hey! Let's figure this out together. Tell me your name.", "ai");
+                step = 1;
+            }, 300);
+        }
+    }
+
+    async function send() {
+        const text = input.value.trim();
+        if (!text) return;
+        addMessage(text, "user");
+        input.value = "";
+        
+        if (step === 1) { userData.name = text; addMessage(`Nice to meet you **${text}**. What career path do you want to dominate?`, "ai"); step = 2; return; }
+        if (step === 2) { userData.interest = text; addMessage("Understood. How are you feeling about this path? (confused, pressured, excited)", "ai"); step = 3; return; }
+
+        const thinking = document.createElement("div");
+        thinking.className = "msg ai";
+        thinking.innerHTML = "<i>Analyzing logic...</i>";
+        chat.appendChild(thinking);
+
+        try {
+            const res = await fetch("/guide", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ name: userData.name, interest: userData.interest, followup: text })
+            });
+            const data = await res.json();
+            thinking.remove();
             userData.progress = data.progress;
             updateProgressBar(data.progress);
-            // Save to browser memory
             localStorage.setItem("ai_career_data", JSON.stringify(userData));
-            document.getElementById("progress-container").style.display = "block";
+            addMessage(data.response, "ai");
+            step = 4;
+        } catch (e) {
+            thinking.remove();
+            addMessage("**Error:** Engine offline.", "ai");
         }
-
-        addMessage(data.response, "ai");
-        if (step === 3) step = 4;
-
-    } catch (e) {
-        thinkingDiv.remove();
-        addMessage("**Error:** The logic engine is offline. Check your internet.", "ai");
     }
-}
 
-input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") send();
-});
-
-// Info Icon logic
-document.getElementById("info-icon").onclick = () => {
-    alert("Mission Progress Tracker:\n- Complete daily tasks to level up.\n- The AI verifies your work before moving the bar.\n- Progress is saved automatically!");
-};
+    input.addEventListener("keypress", (e) => { if (e.key === "Enter") send(); });
 </script>
-
 </body>
 </html>
