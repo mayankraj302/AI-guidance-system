@@ -189,7 +189,7 @@
     <div class="welcome-box">
         <h1>🎯 The 1% Filter</h1>
         <p id="welcomeSubtitle">Stop following the crowd. Let's build a strategic roadmap for your career domination.</p>
-        <button id="mainBtn" onclick="console.log('Button clicked!'); startApp()">Get Started</button>
+        <button id="mainBtn" onclick="startApp()">Enter Mission</button>
         <div id="newMissionContainer" style="display:none; margin-top: 25px;">
             <span id="newMissionLink" style="color: white; font-size: 13px; cursor: pointer; text-decoration: underline; opacity: 0.7;">Start New Mission (Wipe Memory)</span>
         </div>
@@ -256,30 +256,20 @@
     }
 
     function startApp() {
-    console.log("startApp function is running...");
-    
-    const welcomeScreen = document.getElementById("welcomeScreen");
-    if (welcomeScreen) {
-        welcomeScreen.style.display = "none"; // Hide immediately
-        welcomeScreen.remove();              // Then delete
-    } else {
-        console.error("Could not find welcomeScreen element!");
-    }
+        document.getElementById("welcomeScreen").style.opacity = "0";
+        setTimeout(() => {
+            document.getElementById("welcomeScreen").remove();
+        }, 500);
 
-    // Force the chat container to be visible just in case
-    const chatContainer = document.querySelector(".chat-container");
-    if (chatContainer) {
-        chatContainer.style.display = "flex";
-        chatContainer.style.visibility = "visible";
+        if (step === 4) {
+            addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the latest update on your ${userData.interest} progress?`, "ai");
+        } else {
+            setTimeout(() => {
+                addMessage("Hey. I'm here to build your roadmap to the 1%. First, what's your name?", "ai");
+                step = 1;
+            }, 600);
+        }
     }
-
-    if (step === 4) {
-        addMessage(`**System Rebooted.** Resuming mission...`, "ai");
-    } else {
-        addMessage("Hey. Let's build your roadmap. What's your name?", "ai");
-        step = 1;
-    }
-}
 
     async function send() {
         const text = input.value.trim();
@@ -294,4 +284,45 @@
             step = 2;
             return;
         }
-        if (step ===
+        if (step === 2) {
+            userData.interest = text;
+            addMessage(`Analyzing **${text}**. How do you feel about your current progress? (e.g., lost, behind, ready to scale)`, "ai");
+            step = 3;
+            return;
+        }
+
+        const thinking = document.createElement("div");
+        thinking.className = "msg ai";
+        thinking.innerHTML = "<i>Analyzing strategy...</i>";
+        chat.appendChild(thinking);
+        chat.scrollTop = chat.scrollHeight;
+
+        try {
+            const res = await fetch("/guide", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ name: userData.name, interest: userData.interest, followup: text })
+            });
+            const data = await res.json();
+            thinking.remove();
+            
+            userData.progress = data.progress;
+            updateProgressBar(data.progress);
+            localStorage.setItem("ai_career_data", JSON.stringify(userData));
+            
+            addMessage(data.response, "ai");
+            step = 4;
+        } catch (e) {
+            thinking.remove();
+            addMessage("**System Offline.** Check your connection to the logic engine.", "ai");
+        }
+    }
+
+    input.addEventListener("keypress", (e) => { if (e.key === "Enter") send(); });
+
+    document.getElementById("info-icon").onclick = () => {
+        addMessage("📊 **Mission Parameters:**\n- **0-20%**: Diagnostic & Intent.\n- **20-60%**: Skill Proof & Action.\n- **60-100%**: Scaling & Market Dominance.\n\n*Progress is only granted upon proof of action.*", "ai");
+    };
+</script>
+</body>
+</html>
