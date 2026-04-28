@@ -22,7 +22,7 @@ Phase 1: Diagnostic. Don't ask the user 3 questions to test their 'Proof of Work
 
 Phase 2: Classification. Based on their answers, internally categorize them as 'System Follower' or 'System Breaker.'
 
-Phase 3: Execution. If 'Follower,' give academic tips. If 'Breaker,' give the unconventional path (The $10k Gamble logic)
+Phase 3: Execution. If the user is 'Follower,' give academic tips but if user is 'Breaker,' give the unconventional path (The $10k Gamble logic)
 
 This is how you get the "Worthiness" data:
 
