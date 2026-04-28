@@ -108,13 +108,18 @@ body {
     animation: fadeIn 0.25s ease;
 }
 .msg p {
-    margin: 0;
-    display: inline;
+    margin: 0 0 10px 0; 
+    display: block;     
+}
 }
 
 .msg strong, .msg b {
-    font-weight: 600;
-    color: #4F46E5  
+    font-weight: 800; 
+    color: #4F46E5; 
+    background: rgba(79, 70, 229, 0.1); 
+    padding: 0 2px;
+    border-radius: 4px;
+}
 }
 /* AI */
 .ai {
@@ -207,7 +212,7 @@ body {
     <div class="welcome-box">
         <h1>🎯 Mayank's AI Career Guider</h1>
         <p>Confused about your future? Let's figure it out together.</p>
-        <button onclick="startApp()">Get Started</button>
+        <button id="mainBtn" onclick="startApp()">Get Started</button>
         <p id="newMissionLink" style="display:none; font-size: 13px; margin-top: 15px; cursor: pointer; text-decoration: underline; opacity: 0.8;">Start a new mission</p>
     </div>
 </div>
@@ -324,32 +329,38 @@ async function send() {
 
     addMessage(text, "user");
     input.value = "";
-    addMessage("<i>Analyzing...</i>", "ai");
-    const thinkingMessage = chat.lastChild;
+    
+    // Add thinking indicator
+    const thinkingDiv = document.createElement("div");
+    thinkingDiv.className = "msg ai";
+    thinkingDiv.innerHTML = "<i>Analyzing logic...</i>";
+    chat.appendChild(thinkingDiv);
+    chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
 
     let payload = {};
 
+    // Steps 1 & 2 stay the same (Name and Interest)
     if (step === 1) {
         userData.name = text;
-        thinkingMessage.remove();
+        thinkingDiv.remove();
         addMessage(`System localized. Nice to meet you **${text}**. What is an interest or career path you want to dominate?`, "ai");
         step = 2;
         return;
     } 
     else if (step === 2) {
         userData.interest = text;
-        thinkingMessage.remove();
+        thinkingDiv.remove();
         addMessage("Understood. How are you feeling about this path? (e.g., confused, pressured, excited)", "ai");
         step = 3;
         return;
     } 
 
-    if (step === 3) {
-        userData.feeling = text;
-        payload = userData;
-    } else {
-        payload = { ...userData, followup: text, current_day: window.currentDay || 0 };
-    }
+    // Step 3+ communicates with Flask
+    payload = { 
+        name: userData.name, 
+        interest: userData.interest, 
+        followup: text 
+    };
 
     try {
         const res = await fetch("/guide", {
@@ -359,13 +370,13 @@ async function send() {
         });
 
         const data = await res.json();
-        thinkingMessage.remove();
+        thinkingDiv.remove();
 
+        // UPDATE THE PROGRESS BAR
         if (data.progress !== undefined) {
-            updateProgressBar(data.progress);
             userData.progress = data.progress;
-            window.currentDay = data.next_day;
-            userData.currentDay = data.next_day;
+            updateProgressBar(data.progress);
+            // Save to browser memory
             localStorage.setItem("ai_career_data", JSON.stringify(userData));
             document.getElementById("progress-container").style.display = "block";
         }
@@ -374,8 +385,8 @@ async function send() {
         if (step === 3) step = 4;
 
     } catch (e) {
-        if(thinkingMessage) thinkingMessage.remove();
-        addMessage("Connection error. The logic engine is offline.", "ai");
+        thinkingDiv.remove();
+        addMessage("**Error:** The logic engine is offline. Check your internet.", "ai");
     }
 }
 
