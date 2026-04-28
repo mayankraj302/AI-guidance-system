@@ -214,7 +214,10 @@ body {
         <p id="welcomeSubtitle">Confused about your future? Let's figure it out together.</p>
         
         <button id="mainBtn" onclick="startApp()">Get Started</button>
-        <p id="newMissionLink" style="display:none; font-size: 13px; margin-top: 15px; cursor: pointer; text-decoration: underline; opacity: 0.8;">Start a new mission</p>
+        <div id="newMissionContainer" style="display:none; margin-top: 20px;">
+        <span id="newMissionLink" style="color: white; font-size: 13px; cursor: pointer; text-decoration: underline; opacity: 0.8;">
+            Start a new mission
+        </span>
     </div>
 </div>
 
@@ -258,22 +261,31 @@ let userData = {
 // CHECK FOR RETURNING USER ON LOAD
 window.onload = () => {
     const saved = localStorage.getItem("ai_career_data");
-    const newMissionLink = document.getElementById("newMissionLink");
+    const newMissionContainer = document.getElementById("newMissionContainer");
     const welcomeBtn = document.getElementById("mainBtn");
+    const newMissionLink = document.getElementById("newMissionLink");
 
     if (saved) {
         userData = JSON.parse(saved);
         
-        // Update Welcome Screen
+        // Update UI for returning user
         document.querySelector(".welcome-box h1").innerHTML = `🎯 Welcome Back, ${userData.name}!`;
-        document.getElementById("welcomeSubtitle").textContent = `Progress: ${userData.progress}% | Path: ${userData.interest}`;
+        document.getElementById("welcomeSubtitle").textContent = `Currently at ${userData.progress}% on your ${userData.interest} path.`;
         welcomeBtn.textContent = "Resume Mission";
 
-        newMissionLink.style.display = "block";
-
-        // CRITICAL FIX: Set step to 4 so the 'send' function knows we are past the intro
-        step = 4; 
+        // Show the reset option
+        newMissionContainer.style.display = "block";
         
+        // Direct assignment to ensure it works
+        newMissionLink.onclick = function() {
+            if(confirm("This will clear your current progress and history. Are you sure?")) {
+                localStorage.clear(); // Clear everything
+                location.reload();    // Hard refresh to reset the state
+            }
+        };
+
+        // Jump to Step 4
+        step = 4; 
         updateProgressBar(userData.progress || 0);
         document.getElementById("progress-container").style.display = "block";
     }
