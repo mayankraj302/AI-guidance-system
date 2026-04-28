@@ -68,6 +68,7 @@ def guide():
 
     # Get AI response
     raw_response = ask_ai(user_prompt, current_pct)
+    clean_response = raw_response
 
     # CHECK FOR PROGRESS TAG
     if "[PROGRESS_UP]" in raw_response:
