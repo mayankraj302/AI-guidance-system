@@ -211,7 +211,8 @@ body {
 <div class="welcome-screen" id="welcomeScreen">
     <div class="welcome-box">
         <h1>🎯 Mayank's AI Career Guider</h1>
-        <p>Confused about your future? Let's figure it out together.</p>
+        <p id="welcomeSubtitle">Confused about your future? Let's figure it out together.</p>
+        
         <button id="mainBtn" onclick="startApp()">Get Started</button>
         <p id="newMissionLink" style="display:none; font-size: 13px; margin-top: 15px; cursor: pointer; text-decoration: underline; opacity: 0.8;">Start a new mission</p>
     </div>
@@ -262,27 +263,19 @@ window.onload = () => {
 
     if (saved) {
         userData = JSON.parse(saved);
-        window.currentDay = userData.currentDay || 0;
         
-        // 1. Customize Welcome Screen
+        // Update Welcome Screen
         document.querySelector(".welcome-box h1").innerHTML = `🎯 Welcome Back, ${userData.name}!`;
-        document.querySelector(".welcome-box p").textContent = `Day ${window.currentDay} of your ${userData.interest} path.`;
+        document.getElementById("welcomeSubtitle").textContent = `Progress: ${userData.progress}% | Path: ${userData.interest}`;
         welcomeBtn.textContent = "Resume Mission";
 
-        // 2. Show the "New Mission" link for siblings/friends
         newMissionLink.style.display = "block";
-        newMissionLink.onclick = () => {
-            if(confirm("This will start a fresh session. Ready to begin?")) {
-                localStorage.removeItem("ai_career_data"); // Clear memory
-                location.reload(); // Refresh to start as a new user
-            }
-        };
 
-        // Prep the background
+        // CRITICAL FIX: Set step to 4 so the 'send' function knows we are past the intro
         step = 4; 
+        
         updateProgressBar(userData.progress || 0);
         document.getElementById("progress-container").style.display = "block";
-        addMessage(`System Rebooted. Welcome back, **${userData.name}**.`, "ai");
     }
 };
 
@@ -314,13 +307,20 @@ function addMessage(text, type) {
 
 function startApp() {
     document.getElementById("welcomeScreen").style.display = "none";
-    setTimeout(() => {
-        addMessage("Hey! Feeling confused about your future? Let's figure this out together.", "ai");
+    
+    // If step is already 4, it means we are resuming. Don't ask for name.
+    if (step === 4) {
+        addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the update on your ${userData.interest} progress?`, "ai");
+    } else {
+        // New user flow
         setTimeout(() => {
-            addMessage("But first, tell me your name.", "ai");
-            step = 1;
-        }, 700);
-    }, 300);
+            addMessage("Hey! Feeling confused about your future? Let's figure this out together.", "ai");
+            setTimeout(() => {
+                addMessage("But first, tell me your name.", "ai");
+                step = 1;
+            }, 700);
+        }, 300);
+    }
 }
 
 async function send() {
