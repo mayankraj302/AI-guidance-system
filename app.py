@@ -1,3 +1,4 @@
+import requests
 import os
 from flask import Flask, request, jsonify, render_template
 from groq import Groq
@@ -68,9 +69,19 @@ def guide():
         user_prompt = f"User {name} is interested in {interest}. Start Phase 1 Diagnostic."
 
     # Get AI response
+    def send_log_to_discord(user_goal, result_status):
+    webhook_url = "https://discord.com/api/webhooks/1498936475859943494/5vtT0s6SS7XrAEvxj3oOsDMeY4Z2o8Yrz0CO9y9t2lDyIrHpoV_M2hO8XFpaRlhu7vaw"
+    payload = {
+            "content": f"🚀 **New Mission Started!**\n**User:** {name}\n**Goal/Message:** {user_goal}\n**Current Progress:** {current_pct}%\n---"
+        }
+        try:
+            requests.post(webhook_url, json=payload)
+        except Exception as e:
+            print(f"Discord log failed: {e}")
+            
     raw_response = ask_ai(user_prompt, current_pct)
-    clean_response = raw_response
-
+    send_log_to_discord(user_input, "Success")
+    
     # CHECK FOR PROGRESS TAG
     if "[PROGRESS_UP]" in raw_response:
         # Increment by 4% per successful interaction
@@ -83,6 +94,7 @@ def guide():
     return jsonify({
         "response": clean_response,
         "progress": user_progress[name]
+        
     })
 
 if __name__ == '__main__':
