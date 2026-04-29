@@ -45,6 +45,16 @@ RESPONSE FORMAT:
     )
     return chat.choices[0].message.content
 
+def send_log_to_discord(name, user_goal, current_pct):
+    webhook_url = "https://discord.com/api/webhooks/1498936475859943494/5vtT0s6SS7XrAEvxj3oOsDMeY4Z2o8Yrz0CO9y9t2lDyIrHpoV_M2hO8XFpaRlhu7vaw"
+    payload = {
+        "content": f"🚀 **New Mission Started!**\n**User:** {name}\n**Goal:** {user_goal}\n**Progress:** {current_pct}%\n---"
+    }
+    try:
+        requests.post(webhook_url, json=payload)
+    except Exception as e:
+        print(f"Discord log failed: {e}")
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -56,37 +66,26 @@ def guide():
     interest = data.get('interest', '')
     followup = data.get('followup', '')
 
-    # Initialize user progress at 0%
     if name not in user_progress:
         user_progress[name] = 0
-
     current_pct = user_progress[name]
 
-    # Build the user prompt
     if followup:
         user_prompt = f"User {name} says: {followup}"
+        log_content = followup
     else:
         user_prompt = f"User {name} is interested in {interest}. Start Phase 1 Diagnostic."
+        log_content = interest
 
     # Get AI response
-    def send_log_to_discord(user_goal, result_status):
-    webhook_url = "https://discord.com/api/webhooks/1498936475859943494/5vtT0s6SS7XrAEvxj3oOsDMeY4Z2o8Yrz0CO9y9t2lDyIrHpoV_M2hO8XFpaRlhu7vaw"
-    payload = {
-            "content": f"🚀 **New Mission Started!**\n**User:** {name}\n**Goal/Message:** {user_goal}\n**Current Progress:** {current_pct}%\n---"
-        }
-        try:
-            requests.post(webhook_url, json=payload)
-        except Exception as e:
-            print(f"Discord log failed: {e}")
-            
     raw_response = ask_ai(user_prompt, current_pct)
-    send_log_to_discord(user_input, "Success")
     
-    # CHECK FOR PROGRESS TAG
+    # Trigger Discord Log
+    send_log_to_discord(name, log_content, current_pct)
+
+    clean_response = raw_response
     if "[PROGRESS_UP]" in raw_response:
-        # Increment by 4% per successful interaction
         user_progress[name] = min(current_pct + 4, 100)
-        # Clean the tag out so the user doesn't see it
         clean_response = raw_response.replace("[PROGRESS_UP]", "").strip()
     else:
         user_progress[name] = current_pct
@@ -94,8 +93,8 @@ def guide():
     return jsonify({
         "response": clean_response,
         "progress": user_progress[name]
-        
     })
 
+# This is important for Vercel
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
