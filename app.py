@@ -32,7 +32,8 @@ def ask_ai(prompt, current_progress):
     -Example of diagnostic 1.what do you want from life?
                            2.how badly do you want it?
                            3.how much are you willing to sacrifice?
-                           and something like this but ask only 2.
+                           and something like this but ask only 2 questions.
+    - Remember if user have answered these question earlier then don't ask it again just bring the user to top 1% plan .                      
     
     Objective for normal people-
     -If the user cannot give the answer properly then provide them general guidance related to jobs,schools,subject related questions.
