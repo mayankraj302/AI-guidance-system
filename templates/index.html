@@ -157,6 +157,7 @@
             gap: 12px;
             background: white;
             border-top: 1px solid #f0f0f0;
+            align-items: flex-end;
         }
 
         .input-box input {
@@ -167,7 +168,10 @@
             font-size: 15px;
             outline: none;
             transition: border-color 0.2s;
-        }
+            font-family: 'Inter', sans-serif;
+            resize: none; 
+            max-height: 150px;
+            overflow-y: auto;
 
         .input-box input:focus { border-color: var(--primary); }
 
