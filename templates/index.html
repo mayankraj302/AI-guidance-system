@@ -302,50 +302,33 @@
 
         }
 
-
-
         .input-box {
-
             display: flex;
-
             padding: 20px;
-
             gap: 12px;
-
             background: white;
-
             border-top: 1px solid #f0f0f0;
-
+            align-items: flex-end; /* Keeps button aligned as box grows */
+            
         }
 
-
-
-        .input-box input {
-
+        .input-box textarea {
             flex: 1;
-
             padding: 14px;
-
             border-radius: 12px;
-
             border: 1px solid #e5e7eb;
-
             font-size: 15px;
-
             outline: none;
-
             transition: border-color 0.2s;
-
+            font-family: 'Inter', sans-serif;
+            resize: none; /* Prevents manual resizing which can break UI */
+            max-height: 150px;
+            overflow-y: auto;
         }
 
 
 
-        .input-box input:focus { border-color: var(--primary); }
-
-
-
-        .input-box button { background: var(--primary); color: white; padding: 0 24px; }
-
+        .input-box textarea:focus { border-color: var(--primary); }
 
 
         @keyframes fadeIn {
@@ -425,13 +408,8 @@
 
 
     <div class="input-box">
-
-        <input type="text" id="input" placeholder="Type your response..." autocomplete="off">
-
-        <button onclick="send()">Send</button>
-
-    </div>
-
+    <textarea id="input" placeholder="Type your response... (Shift+Enter for new line)" rows="1" autocomplete="off"></textarea>
+    <button onclick="send()">Send</button>
 </div>
 
 
@@ -445,6 +423,10 @@
     let step = 0;
 
     let userData = { name: "", interest: "", progress: 0 };
+    input.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
 
 
 
@@ -555,7 +537,7 @@
         addMessage(text, "user");
 
         input.value = "";
-
+        input.style.height = 'auto';
 
 
         if (step === 1) {
