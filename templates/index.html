@@ -1,637 +1,182 @@
 <!DOCTYPE html>
-
-<html lang="en">
-
+<html lang="en" class="dark">
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Mayank's AI Career Guider | The 1% Filter</title>
-
-    
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    
-
-    <style>
-
-        :root {
-
-            --bg-gradient: linear-gradient(135deg, #6366F1, #7C3AED);
-
-            --chat-bg: #F9FAFB;
-
-            --primary: #6D28D9;
-
-            --secondary: #4F46E5;
-
-        }
-
-
-
-        body {
-
-            margin: 0;
-
-            font-family: 'Inter', sans-serif;
-
-            background: var(--bg-gradient);
-
-            height: 100vh;
-
-            width: 100vw;
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            overflow: hidden;
-
-        }
-
-
-
-        /* WELCOME SCREEN */
-
-        .welcome-screen {
-
-            position: fixed;
-
-            inset: 0;
-
-            background: linear-gradient(135deg, #4F46E5, #7C3AED);
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            z-index: 9999;
-
-            transition: all 0.5s ease;
-
-        }
-
-
-
-        .welcome-box {
-
-            text-align: center;
-
-            color: white;
-
-            max-width: 420px;
-
-            padding: 30px;
-
-        }
-
-
-
-        .welcome-box h1 { font-weight: 800; font-size: 2rem; margin-bottom: 10px; }
-
-        .welcome-box p { opacity: 0.9; margin-bottom: 30px; line-height: 1.5; }
-
-
-
-        .welcome-box button, .input-box button {
-
-            background: white;
-
-            color: var(--primary);
-
-            border: none;
-
-            padding: 14px 28px;
-
-            border-radius: 12px;
-
-            font-weight: 600;
-
-            cursor: pointer;
-
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-
-        }
-
-
-
-        .welcome-box button:hover, .input-box button:hover {
-
-            transform: translateY(-3px) scale(1.05);
-
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-
-            background: #f8f9ff;
-
-        }
-
-
-
-        /* CHAT INTERFACE */
-
-        .chat-container {
-
-            width: 90%;
-
-            max-width: 900px;
-
-            height: 85vh;
-
-            background: white;
-
-            border-radius: 24px;
-
-            display: flex;
-
-            flex-direction: column;
-
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-
-            overflow: hidden;
-
-            position: relative;
-
-            z-index: 10;
-
-        }
-
-
-
-        .header {
-
-            padding: 20px;
-
-            text-align: center;
-
-            font-weight: 600;
-
-            color: white;
-
-            background: linear-gradient(135deg, #4F46E5, #7C3AED);
-
-            letter-spacing: 0.5px;
-
-        }
-
-
-
-        /* PROGRESS BAR POLISH */
-
-        #progress-container {
-
-            padding: 12px 24px;
-
-            background: #fdfdfd;
-
-            border-bottom: 1px solid #f0f0f0;
-
-        }
-
-
-
-        #info-icon {
-
-            cursor: help;
-
-            font-size: 16px;
-
-            opacity: 0.5;
-
-            transition: transform 0.2s, opacity 0.2s;
-
-        }
-
-
-
-        #info-icon:hover { opacity: 1; transform: scale(1.2); }
-
-
-
-        .chat {
-
-            flex: 1;
-
-            background: var(--chat-bg);
-
-            overflow-y: auto;
-
-            padding: 25px;
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 16px;
-
-            scroll-behavior: smooth;
-
-        }
-
-
-
-        /* MESSAGES */
-
-        .msg {
-
-            max-width: 75%;
-
-            padding: 14px 20px;
-
-            border-radius: 18px;
-
-            font-size: 15px;
-
-            line-height: 1.6;
-
-            animation: fadeIn 0.3s ease-out forwards;
-
-        }
-
-
-
-        .ai {
-
-            background: white;
-
-            align-self: flex-start;
-
-            border: 1px solid #eef0f2;
-
-            color: #1f2937;
-
-            border-bottom-left-radius: 4px;
-
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-
-        }
-
-
-
-        .user {
-
-            background: var(--primary);
-
-            color: white;
-
-            align-self: flex-end;
-
-            border-bottom-right-radius: 4px;
-
-            box-shadow: 0 4px 15px rgba(109, 40, 217, 0.2);
-
-        }
-
-
-
-        .msg strong, .msg b {
-
-            font-weight: 700;
-
-            color: var(--secondary);
-
-        }
-
-        .input-box {
-            display: flex;
-            padding: 20px;
-            gap: 12px;
-            background: white;
-            border-top: 1px solid #f0f0f0;
-            align-items: flex-end; /* Keeps button aligned as box grows */
-            
-        }
-
-        .input-box textarea {
-            flex: 1;
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s;
-            font-family: 'Inter', sans-serif;
-            resize: none; /* Prevents manual resizing which can break UI */
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-
-
-        .input-box textarea:focus { border-color: var(--primary); }
-
-
-        @keyframes fadeIn {
-
-            from { opacity: 0; transform: translateY(10px); }
-
-            to { opacity: 1; transform: translateY(0); }
-
-        }
-
-
-
-        /* SCROLLBAR */
-
-        .chat::-webkit-scrollbar { width: 6px; }
-
-        .chat::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
-
-    </style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Navigator • Mayank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body { background: #0a0a0a; }
+    .chat-window { height: calc(100vh - 130px); }
+    @media (max-width: 768px) {
+      .chat-window { height: calc(100vh - 110px); }
+    }
+    .ai-bubble { background: #1a1a1a; border-radius: 18px 18px 18px 4px; }
+    .user-bubble { background: #2563eb; color: white; border-radius: 18px 18px 4px 18px; }
+  </style>
 </head>
+<body class="text-white">
 
-<body>
+  <div class="flex h-screen flex-col md:flex-row">
 
-
-
-<div class="welcome-screen" id="welcomeScreen">
-
-    <div class="welcome-box">
-
-        <h1>🎯 The 1% Filter</h1>
-
-        <p id="welcomeSubtitle">Stop following the crowd. Let's build a strategic roadmap for your career domination.</p>
-
-        <button id="mainBtn" onclick="startApp()">Enter Mission</button>
-
-        <div id="newMissionContainer" style="display:none; margin-top: 25px;">
-
-            <span id="newMissionLink" style="color: white; font-size: 13px; cursor: pointer; text-decoration: underline; opacity: 0.7;">Start New Mission (Wipe Memory)</span>
-
+    <!-- Sidebar (Hidden on mobile by default) -->
+    <div id="sidebar" class="hidden md:flex w-72 bg-[#111111] border-r border-gray-800 flex-col">
+      <div class="p-5 border-b border-gray-800">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-white text-black rounded-xl flex items-center justify-center font-bold text-xl">M</div>
+          <div>
+            <h1 class="text-xl font-semibold">Student Navigator</h1>
+            <p class="text-xs text-gray-500">by Mayank</p>
+          </div>
         </div>
+      </div>
 
+      <div class="p-4">
+        <button onclick="newChat()" 
+                class="w-full border border-gray-600 hover:border-white py-3 rounded-2xl font-medium flex items-center justify-center gap-2">
+          <i class="fas fa-plus"></i> New Chat
+        </button>
+      </div>
+
+      <div class="px-5 py-2 text-gray-400 text-sm">Recent</div>
+      <div class="flex-1 overflow-y-auto px-3 text-sm" id="history"></div>
+
+      <div class="p-5 border-t border-gray-800 text-xs text-gray-500">
+        Free • Groq<br>
+        Built by a student
+      </div>
     </div>
 
-</div>
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col">
 
-
-
-<div class="chat-container">
-
-    <div class="header">🚀 STRATEGIC GUIDANCE ENGINE</div>
-
-    
-
-    <div id="progress-container">
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-
-            <p id="progress-text" style="margin: 0; font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Mission Progress: 0%</p>
-
-            <span id="info-icon" title="Details">ℹ️</span>
-
+      <!-- Top Navbar -->
+      <div class="h-14 md:h-16 bg-[#0a0a0a] border-b border-gray-800 px-4 md:px-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden text-2xl">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2 class="font-semibold text-lg">AI Career Coach</h2>
         </div>
-
-        <div style="width: 100%; background: #e5e7eb; border-radius: 10px; height: 8px; overflow: hidden;">
-
-            <div id="progress-bar" style="width: 0%; height: 100%; background: var(--secondary); transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-
+        <div class="flex items-center gap-2 text-xs md:text-sm text-gray-400">
+          <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+          Online
         </div>
+      </div>
 
+      <!-- Chat Messages -->
+      <div id="chat-window" class="flex-1 overflow-y-auto p-4 md:p-8 chat-window space-y-6 bg-[#0a0a0a]">
+        
+        <!-- Welcome Message -->
+        <div class="max-w-3xl mx-auto">
+          <div class="flex gap-4">
+            <div class="w-9 h-9 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">👨‍💼</div>
+            <div>
+              <p class="text-xl md:text-2xl font-medium">Hi, I'm your Navigator.</p>
+              <p class="text-gray-400 mt-2 text-[15px] md:text-base">
+                I help 11th and 12th graders make smarter decisions about NEET, JEE, skills, and future.
+              </p>
+              <p class="text-gray-500 mt-5">What's your current situation?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="p-4 md:p-6 bg-[#0a0a0a] border-t border-gray-800">
+        <div class="max-w-4xl mx-auto">
+          <div class="bg-[#171717] rounded-3xl p-2 border border-gray-700">
+            <textarea 
+              id="user-input"
+              rows="1"
+              placeholder="Ask anything... (e.g. Make a 6-month plan)"
+              class="w-full bg-transparent px-5 py-4 outline-none resize-none text-base md:text-lg max-h-40"
+              onkeydown="if(event.key === 'Enter' && !event.shiftKey){ event.preventDefault(); sendMessage(); }"></textarea>
+            
+            <div class="flex justify-end pr-2 pb-2">
+              <button onclick="sendMessage()" 
+                      class="bg-blue-600 hover:bg-blue-500 w-11 h-11 flex items-center justify-center rounded-2xl transition-all">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+          <p class="text-center text-gray-500 text-xs mt-3">Free • May have occasional mistakes</p>
+        </div>
+      </div>
     </div>
+  </div>
 
-
-
-    <div class="chat" id="chat"></div>
-
-
-
-    <div class="input-box">
-    <textarea id="input" placeholder="Type your response... (Shift+Enter for new line)" rows="1" autocomplete="off"></textarea>
-    <button onclick="send()">Send</button>
-</div>
-
-
-
-<script>
-
-    const chat = document.getElementById("chat");
-
-    const input = document.getElementById("input");
-
-    let step = 0;
-
-    let userData = { name: "", interest: "", progress: 0 };
-    input.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
-
-
-
-    window.onload = () => {
-
-        const saved = localStorage.getItem("ai_career_data");
-
-        if (saved) {
-
-            userData = JSON.parse(saved);
-
-            document.querySelector(".welcome-box h1").innerHTML = `🎯 Welcome Back, ${userData.name}`;
-
-            document.getElementById("welcomeSubtitle").textContent = `Currently at ${userData.progress}% on your ${userData.interest} mission.`;
-
-            document.getElementById("mainBtn").textContent = "Resume Mission";
-
-            document.getElementById("newMissionContainer").style.display = "block";
-
-            document.getElementById("newMissionLink").onclick = () => {
-
-                if(confirm("This will permanently delete your progress. Continue?")) {
-
-                    localStorage.clear();
-
-                    location.reload();
-
-                }
-
-            };
-
-            step = 4;
-
-            updateProgressBar(userData.progress);
-
-        }
-
-    };
-
-
-
-    function updateProgressBar(percent) {
-
-        document.getElementById("progress-bar").style.width = percent + "%";
-
-        document.getElementById("progress-text").textContent = `Mission Progress: ${percent}%`;
-
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('flex');
     }
 
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
 
+      const chatWindow = document.getElementById('chat-window');
 
-    function addMessage(text, type) {
+      // User message
+      chatWindow.innerHTML += `
+        <div class="max-w-3xl ml-auto">
+          <div class="user-bubble px-5 py-3.5 inline-block">
+            ${message}
+          </div>
+        </div>
+      `;
 
-        const div = document.createElement("div");
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      const userMsg = message;
+      input.value = '';
 
-        div.className = `msg ${type}`;
+      // Typing indicator
+      const typingId = 'typing-' + Date.now();
+      chatWindow.innerHTML += `
+        <div id="${typingId}" class="max-w-3xl">
+          <div class="flex gap-4">
+            <div class="w-9 h-9 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl">👨‍💼</div>
+            <div class="ai-bubble px-5 py-3.5">Thinking...</div>
+          </div>
+        </div>
+      `;
+      chatWindow.scrollTop = chatWindow.scrollHeight;
 
-        div.innerHTML = type === "ai" ? marked.parse(text) : text;
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userMsg })
+        });
+        const data = await res.json();
 
-        chat.appendChild(div);
+        document.getElementById(typingId).remove();
 
-        chat.scrollTop = chat.scrollHeight;
+        chatWindow.innerHTML += `
+          <div class="max-w-3xl">
+            <div class="flex gap-4">
+              <div class="w-9 h-9 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl">👨‍💼</div>
+              <div class="ai-bubble px-5 py-3.5">${data.response || "Sorry, I couldn't process that."}</div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        document.getElementById(typingId).remove();
+        chatWindow.innerHTML += `<div class="text-red-400 pl-14">Connection error. Try again.</div>`;
+      }
 
+      chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-
-
-    function startApp() {
-
-        document.getElementById("welcomeScreen").style.opacity = "0";
-
-        setTimeout(() => {
-
-            document.getElementById("welcomeScreen").remove();
-
-        }, 500);
-
-
-
-        if (step === 4) {
-
-            addMessage(`**System Rebooted.** Resuming mission for **${userData.name}**. What's the latest update on your ${userData.interest} progress?`, "ai");
-
-        } else {
-
-            setTimeout(() => {
-
-                addMessage("Hey. I'm here to build your roadmap to the 1%. First, what's your name?", "ai");
-
-                step = 1;
-
-            }, 600);
-
-        }
-
+    function newChat() {
+      if (confirm("Start new conversation?")) {
+        location.reload();
+      }
     }
-
-
-
-    async function send() {
-
-        const text = input.value.trim();
-
-        if (!text) return;
-
-
-
-        addMessage(text, "user");
-
-        input.value = "";
-        input.style.height = 'auto';
-
-
-        if (step === 1) {
-
-            userData.name = text;
-
-            addMessage(`Localized. **${text}**, what career or skill do you want to dominate?`, "ai");
-
-            step = 2;
-
-            return;
-
-        }
-
-        if (step === 2) {
-
-            userData.interest = text;
-
-            addMessage(`Analyzing **${text}**. How do you feel about your current progress? (e.g., lost, behind, ready to scale)`, "ai");
-
-            step = 3;
-
-            return;
-
-        }
-
-
-
-        const thinking = document.createElement("div");
-
-        thinking.className = "msg ai";
-
-        thinking.innerHTML = "<i>Analyzing strategy...</i>";
-
-        chat.appendChild(thinking);
-
-        chat.scrollTop = chat.scrollHeight;
-
-
-
-        try {
-
-            const res = await fetch("/guide", {
-
-                method: "POST",
-
-                headers: {"Content-Type": "application/json"},
-
-                body: JSON.stringify({ name: userData.name, interest: userData.interest, followup: text })
-
-            });
-
-            const data = await res.json();
-
-            thinking.remove();
-
-            
-
-            userData.progress = data.progress;
-
-            updateProgressBar(data.progress);
-
-            localStorage.setItem("ai_career_data", JSON.stringify(userData));
-
-            
-
-            addMessage(data.response, "ai");
-
-            step = 4;
-
-        } catch (e) {
-
-            thinking.remove();
-
-            addMessage("**System Offline.** Check your connection to the logic engine.", "ai");
-
-        }
-
-    }
-
-
-
-    input.addEventListener("keypress", (e) => { if (e.key === "Enter") send(); });
-
-
-
-    document.getElementById("info-icon").onclick = () => {
-
-        addMessage("📊 **Mission Parameters:**\n- **0-20%**: Diagnostic & Intent.\n- **20-60%**: Skill Proof & Action.\n- **60-100%**: Scaling & Market Dominance.\n\n*Progress is only granted upon proof of action.*", "ai");
-
-    };
-
-</script>
-
+  </script>
 </body>
-
 </html>
