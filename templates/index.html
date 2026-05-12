@@ -8,175 +8,175 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     body { background: #0a0a0a; }
-    .chat-window { height: calc(100vh - 130px); }
-    @media (max-width: 768px) {
-      .chat-window { height: calc(100vh - 110px); }
-    }
-    .ai-bubble { background: #1a1a1a; border-radius: 18px 18px 18px 4px; }
-    .user-bubble { background: #2563eb; color: white; border-radius: 18px 18px 4px 18px; }
+    .chat-window { height: calc(100vh - 180px); }
+    @media (max-width: 768px) { .chat-window { height: calc(100vh - 160px); } }
+    .ai-bubble { background: #1a1a1a; border-radius: 18px 18px 18px 6px; }
+    .user-bubble { background: #2563eb; color: white; border-radius: 18px 18px 6px 18px; }
   </style>
 </head>
 <body class="text-white">
 
   <div class="flex h-screen flex-col md:flex-row">
 
-    <!-- Sidebar (Hidden on mobile by default) -->
-    <div id="sidebar" class="hidden md:flex w-72 bg-[#111111] border-r border-gray-800 flex-col">
-      <div class="p-5 border-b border-gray-800">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-white text-black rounded-xl flex items-center justify-center font-bold text-xl">M</div>
-          <div>
-            <h1 class="text-xl font-semibold">Student Navigator</h1>
-            <p class="text-xs text-gray-500">by Mayank</p>
-          </div>
+    <!-- Sidebar -->
+    <div class="hidden md:flex w-72 bg-[#111111] border-r border-gray-800 flex-col">
+      <div class="p-6 border-b border-gray-800">
+        <h1 class="text-2xl font-semibold">Student Navigator</h1>
+        <p class="text-xs text-gray-500 mt-1">by Mayank</p>
+      </div>
+
+      <div class="p-6">
+        <div class="text-sm text-gray-400 mb-2">MISSION PROGRESS</div>
+        <div class="h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-2 bg-blue-600 rounded-full w-0 transition-all"></div>
         </div>
+        <p id="progress-text" class="text-xs text-gray-400 mt-2 text-center">0% • Starting Mission</p>
       </div>
 
-      <div class="p-4">
-        <button onclick="newChat()" 
-                class="w-full border border-gray-600 hover:border-white py-3 rounded-2xl font-medium flex items-center justify-center gap-2">
-          <i class="fas fa-plus"></i> New Chat
-        </button>
-      </div>
-
-      <div class="px-5 py-2 text-gray-400 text-sm">Recent</div>
-      <div class="flex-1 overflow-y-auto px-3 text-sm" id="history"></div>
-
-      <div class="p-5 border-t border-gray-800 text-xs text-gray-500">
-        Free • Groq<br>
-        Built by a student
-      </div>
+      <div class="px-6 text-gray-400 text-sm">Recent</div>
+      <div class="flex-1 p-4 overflow-y-auto text-sm" id="history"></div>
     </div>
 
-    <!-- Main Chat Area -->
+    <!-- Main Chat -->
     <div class="flex-1 flex flex-col">
-
-      <!-- Top Navbar -->
-      <div class="h-14 md:h-16 bg-[#0a0a0a] border-b border-gray-800 px-4 md:px-6 flex items-center justify-between">
+      <!-- Top Bar -->
+      <div class="h-16 bg-[#0a0a0a] border-b border-gray-800 px-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <button onclick="toggleSidebar()" class="md:hidden text-2xl">
-            <i class="fas fa-bars"></i>
-          </button>
-          <h2 class="font-semibold text-lg">AI Career Coach</h2>
+          <button onclick="toggleMobileMenu()" class="md:hidden text-xl"><i class="fas fa-bars"></i></button>
+          <h2 class="font-semibold">The 1% Navigator</h2>
         </div>
-        <div class="flex items-center gap-2 text-xs md:text-sm text-gray-400">
-          <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-          Online
+        <div class="text-sm text-gray-400 flex items-center gap-2">
+          <span class="w-2 h-2 bg-green-500 rounded-full"></span> Online
         </div>
       </div>
 
-      <!-- Chat Messages -->
-      <div id="chat-window" class="flex-1 overflow-y-auto p-4 md:p-8 chat-window space-y-6 bg-[#0a0a0a]">
-        
-        <!-- Welcome Message -->
-        <div class="max-w-3xl mx-auto">
-          <div class="flex gap-4">
-            <div class="w-9 h-9 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">👨‍💼</div>
-            <div>
-              <p class="text-xl md:text-2xl font-medium">Hi, I'm your Navigator.</p>
-              <p class="text-gray-400 mt-2 text-[15px] md:text-base">
-                I help 11th and 12th graders make smarter decisions about NEET, JEE, skills, and future.
-              </p>
-              <p class="text-gray-500 mt-5">What's your current situation?</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Chat Area -->
+      <div id="chat-window" class="flex-1 overflow-y-auto p-4 md:p-6 chat-window space-y-6 bg-[#0a0a0a]"></div>
 
-      <!-- Input Area -->
-      <div class="p-4 md:p-6 bg-[#0a0a0a] border-t border-gray-800">
+      <!-- Input -->
+      <div class="p-4 bg-[#0a0a0a] border-t border-gray-800">
         <div class="max-w-4xl mx-auto">
           <div class="bg-[#171717] rounded-3xl p-2 border border-gray-700">
-            <textarea 
-              id="user-input"
-              rows="1"
-              placeholder="Ask anything... (e.g. Make a 6-month plan)"
-              class="w-full bg-transparent px-5 py-4 outline-none resize-none text-base md:text-lg max-h-40"
-              onkeydown="if(event.key === 'Enter' && !event.shiftKey){ event.preventDefault(); sendMessage(); }"></textarea>
+            <textarea id="user-input" rows="1"
+              placeholder="Type your message..."
+              class="w-full bg-transparent px-5 py-4 outline-none resize-none text-base"
+              onkeydown="if(event.key === 'Enter' && !event.shiftKey){ event.preventDefault(); send(); }"></textarea>
             
-            <div class="flex justify-end pr-2 pb-2">
-              <button onclick="sendMessage()" 
-                      class="bg-blue-600 hover:bg-blue-500 w-11 h-11 flex items-center justify-center rounded-2xl transition-all">
+            <div class="flex justify-end pr-3 pb-2">
+              <button onclick="send()" 
+                      class="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-2xl">
                 <i class="fas fa-paper-plane"></i>
               </button>
             </div>
           </div>
-          <p class="text-center text-gray-500 text-xs mt-3">Free • May have occasional mistakes</p>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('hidden');
-      sidebar.classList.toggle('flex');
+    let step = 0;
+    let userData = JSON.parse(localStorage.getItem("ai_career_data")) || {};
+
+    const chat = document.getElementById("chat-window");
+    const input = document.getElementById("user-input");
+    const progressBar = document.getElementById("progress-bar");
+    const progressText = document.getElementById("progress-text");
+
+    function addMessage(text, sender) {
+      const div = document.createElement("div");
+      div.className = sender === "user" 
+        ? "max-w-[80%] ml-auto" 
+        : "max-w-[80%]";
+
+      div.innerHTML = sender === "user" 
+        ? `<div class="user-bubble px-5 py-3.5">${text}</div>`
+        : `<div class="ai-bubble px-5 py-3.5">${text}</div>`;
+
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
     }
 
-    async function sendMessage() {
-      const input = document.getElementById('user-input');
-      const message = input.value.trim();
-      if (!message) return;
+    function updateProgressBar(percent) {
+      progressBar.style.width = percent + "%";
+      progressText.textContent = percent + "% Complete";
+    }
 
-      const chatWindow = document.getElementById('chat-window');
+    function toggleMobileMenu() {
+      alert("Sidebar coming soon on mobile");
+    }
 
-      // User message
-      chatWindow.innerHTML += `
-        <div class="max-w-3xl ml-auto">
-          <div class="user-bubble px-5 py-3.5 inline-block">
-            ${message}
-          </div>
-        </div>
-      `;
+    // Initialize Chat
+    function initChat() {
+      chat.innerHTML = "";
+      if (userData.name && userData.interest) {
+        addMessage(`**System Rebooted.** Welcome back, <strong>${userData.name}</strong>.<br>What's the latest update on your <strong>${userData.interest}</strong> progress?`, "ai");
+        step = 4;
+        if (userData.progress) updateProgressBar(userData.progress);
+      } else {
+        setTimeout(() => {
+          addMessage("Hey. I'm here to build your roadmap to the 1%.<br><br>First, what's your name?", "ai");
+          step = 1;
+        }, 400);
+      }
+    }
 
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-      const userMsg = message;
-      input.value = '';
+    async function send() {
+      const text = input.value.trim();
+      if (!text) return;
 
-      // Typing indicator
-      const typingId = 'typing-' + Date.now();
-      chatWindow.innerHTML += `
-        <div id="${typingId}" class="max-w-3xl">
-          <div class="flex gap-4">
-            <div class="w-9 h-9 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl">👨‍💼</div>
-            <div class="ai-bubble px-5 py-3.5">Thinking...</div>
-          </div>
-        </div>
-      `;
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+      addMessage(text, "user");
+      input.value = "";
+
+      if (step === 1) {
+        userData.name = text;
+        addMessage(`Got it, <strong>${text}</strong>.<br>What career or skill do you want to dominate?`, "ai");
+        step = 2;
+        return;
+      }
+
+      if (step === 2) {
+        userData.interest = text;
+        addMessage(`Analyzing <strong>${text}</strong> path.<br>How do you feel about your current progress?<br>(e.g., lost, behind, average, grinding hard)`, "ai");
+        step = 3;
+        return;
+      }
+
+      // For step 3 and above → call backend
+      const thinking = document.createElement("div");
+      thinking.className = "max-w-[80%]";
+      thinking.innerHTML = `<div class="ai-bubble px-5 py-3.5"><i>Analyzing strategy...</i></div>`;
+      chat.appendChild(thinking);
+      chat.scrollTop = chat.scrollHeight;
 
       try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: userMsg })
+        const res = await fetch("/guide", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            name: userData.name, 
+            interest: userData.interest, 
+            followup: text 
+          })
         });
+
         const data = await res.json();
+        thinking.remove();
 
-        document.getElementById(typingId).remove();
+        userData.progress = data.progress || userData.progress || 25;
+        updateProgressBar(userData.progress);
+        localStorage.setItem("ai_career_data", JSON.stringify(userData));
 
-        chatWindow.innerHTML += `
-          <div class="max-w-3xl">
-            <div class="flex gap-4">
-              <div class="w-9 h-9 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl">👨‍💼</div>
-              <div class="ai-bubble px-5 py-3.5">${data.response || "Sorry, I couldn't process that."}</div>
-            </div>
-          </div>
-        `;
+        addMessage(data.response, "ai");
+        step = 4;
       } catch (e) {
-        document.getElementById(typingId).remove();
-        chatWindow.innerHTML += `<div class="text-red-400 pl-14">Connection error. Try again.</div>`;
-      }
-
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    function newChat() {
-      if (confirm("Start new conversation?")) {
-        location.reload();
+        thinking.remove();
+        addMessage("**Connection failed.** Check your backend.", "ai");
       }
     }
+
+    // Start the app
+    window.onload = initChat;
   </script>
 </body>
 </html>
